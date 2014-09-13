@@ -19,5 +19,5 @@ install:
     - g++ --version
     - g++ -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit
 script:
-    - cd build
+    - cd test
     - ./test --reporter=spec
