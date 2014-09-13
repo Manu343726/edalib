@@ -1,4 +1,4 @@
-edalib
+edalib [![Build Status](https://travis-ci.org/Manu343726/edalib.svg?branch=master)](https://travis-ci.org/Manu343726/edalib)
 ======
 
 An Standard-Library-like library for use in teaching EDA (algorithms and data-structures). While the focus is on readability, correctness and compactness (which aids the former two). Aiding debugging by providing inspection into the internal state of containers and efficiency come next. In all cases, ideal asymptotical efficiency is sought (with exception of search trees, which are currently unbalanced).
