@@ -12,7 +12,7 @@
 #include <type_traits>
 
 /**
- * Since seems like you are not aware of how C++ iterators work, and still write them in the Java way, this header provides several adaptors to
+ * Since seems like you are not aware of how C++ iterators work, and still write them in the Java way, this header provides several adapters to
  * translate an Iterator class from your Java-like syntax (Next(), elem(), set(), etc) to the C++ one (operator++ , operator* , etc) and vice-versa.
  * 
  * First define some contraints:
