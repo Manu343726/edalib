@@ -9,14 +9,14 @@ Do not depend on anything else, and provide linear storage. Support the full ran
 
 * [Vector.h](https://github.com/manuel-freire/edalib/blob/master/src/Vector.h): similar to [`std::vector`](http://en.cppreference.com/w/cpp/container/vector).
 * [CVector.h](https://github.com/manuel-freire/edalib/blob/master/src/CVector.h): a circular vector.
-* [SingleList.h](https://github.com/manuel-freire/edalib/blob/master/src/SingleList.h): a singly-linked list; insert at front and back, remove only from front.
+* [SingleList.h](https://github.com/manuel-freire/edalib/blob/master/src/SingleList.h): a singly-linked list; insert at front and back, remove only from front. Similar to [`std::forward_list`](http://en.cppreference.com/w/cpp/container/forward_list).
 * [DoubleList.h](https://github.com/manuel-freire/edalib/blob/master/src/DoubleList.h): a doubly-linked list; similar to [`std::list`](http://en.cppreference.com/w/cpp/container/list).
 
 ##### Derived linear structures
 
 Decorate one of the previous linear containers, allowing fewer operations but providing a cleaner interface.
 
-* [Stack.h](https://github.com/manuel-freire/edalib/blob/master/src/Stack.h): decorates a Vector (could also decorate CVector or DoubleList; since it requires ```push_back()```, it cannot decorate a singly-linked list unless the lists' notion of front and back is reversed). Similar to [stl::stack](http://www.cplusplus.com/reference/stack/stack/).
+* [Stack.h](https://github.com/manuel-freire/edalib/blob/master/src/Stack.h): decorates a Vector (could also decorate CVector or DoubleList; since it requires ```push_back()```, it cannot decorate a singly-linked list unless the lists' notion of front and back is reversed). Similar to [`std::stack`](http://en.cppreference.com/w/cpp/container/stack).
 * [Queue.h](https://github.com/manuel-freire/edalib/blob/master/src/Queue.h): decorates a CVector or Single or DoubleList. Similar to [`std::queue`](http://en.cppreference.com/w/cpp/container/queue).
 * [Deque.h](https://github.com/manuel-freire/edalib/blob/master/src/Deque.h): decorates a CVector or DoubleList. Similar to [`std::deque`](http://en.cppreference.com/w/cpp/container/deque).
 
@@ -32,7 +32,7 @@ Allow quick lookup, addition and removal of elements indexed by a key. Support t
 Decorate an associative container, allowing fewer operations but with a cleaner interface.
 
 * [Map.h](https://github.com/manuel-freire/edalib/blob/master/src/Map.h): conventional maps. Use ```Map<KeyType, ValueType>::T``` for the tree and ```Map<KeyType, ValueType>::H``` for the hash versions.
-* [Set.h](https://github.com/manuel-freire/edalib/blob/master/src/Set.h): conventional sets. Use ```Set<KeyType>::T``` for the tree and ```Set<KeyType>::H``` for the hash version; ```Set<KeyType>::T``` is similar to [std::set](http://www.cplusplus.com/reference/set/set/).
+* [Set.h](https://github.com/manuel-freire/edalib/blob/master/src/Set.h): conventional sets. Use ```Set<KeyType>::T``` for the tree and ```Set<KeyType>::H``` for the hash version; ```Set<KeyType>::T``` is similar to [`std::set`](http://en.cppreference.com/w/cpp/container/set).
 
 ##### Misc. Utilities
 
