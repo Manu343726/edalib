@@ -37,7 +37,7 @@ class TreeMap {
     typedef typename BinTree<Entry>::Node Node;
     
     BinTree<Entry> _t; ///< sorted binary tree for key-value entries
-    uint _entryCount;  ///< number of key-value entries in tree
+    std::size_t _entryCount;  ///< number of key-value entries in tree
     
 public:
 
@@ -45,7 +45,7 @@ public:
     TreeMap() : _t(), _entryCount(0) {}
 
     /**  */
-    uint size() const {
+    std::size_t size() const {
         return _entryCount;
     }
 
@@ -208,13 +208,13 @@ public:
     
     /** */
     void diagnose(std::ostream &out=std::cout) {
-        uint depth = 0, max = 0;
+        std::size_t depth = 0, max = 0;
         ulong totalDepth = 0;
         _diagnose(_t._root, depth, max, totalDepth);
         float avg = ( 1.0 / _entryCount) *  totalDepth;     
-        uint roundedAvg = (int)avg;
+        std::size_t roundedAvg = (int)avg;
         ulong maxForDepth = 0;
-        for (uint i=0; i<roundedAvg; i++) {
+        for (std::size_t i=0; i<roundedAvg; i++) {
             maxForDepth += (1<<i);
         }
         out << "total of " << _entryCount 
@@ -228,7 +228,7 @@ private:
     /**
      * Calculates average path-length stats for the tree
      */
-    static void _diagnose(Node *n, uint depth, uint &max, ulong &total) {
+    static void _diagnose(Node *n, std::size_t depth, std::size_t &max, ulong &total) {
         if (n) {
             depth ++;
             total += depth;

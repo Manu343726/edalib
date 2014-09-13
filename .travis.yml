@@ -1,0 +1,10 @@
+
+
+compiler:
+    - gcc
+
+install:
+    - g++ -std=c++11 ./test/test.cpp -o ./test/test -Wall -pedantic -Isrc -Ibandit
+
+script:
+    - test --reporter=spec

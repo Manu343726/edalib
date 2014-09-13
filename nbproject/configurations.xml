@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="94">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="src" displayName="src" projectFiles="true">
+      <itemPath>src/BinTree.h</itemPath>
+      <itemPath>src/CVector.h</itemPath>
+      <itemPath>src/Deque.h</itemPath>
+      <itemPath>src/DoubleList.h</itemPath>
+      <itemPath>src/HashTable.h</itemPath>
+      <itemPath>src/Map.h</itemPath>
+      <itemPath>src/MapEntry.h</itemPath>
+      <itemPath>src/Queue.h</itemPath>
+      <itemPath>src/Set.h</itemPath>
+      <itemPath>src/SingleList.h</itemPath>
+      <itemPath>src/Stack.h</itemPath>
+      <itemPath>src/TreeMap.h</itemPath>
+      <itemPath>src/Util.h</itemPath>
+      <itemPath>src/Vector.h</itemPath>
+      <itemPath>src/iterator_adapters.hpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="test" displayName="test" projectFiles="true">
+      <itemPath>test/test.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>src</Elem>
+    <Elem>test</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <compilerSet>GNU|GNU</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <standard>8</standard>
+          <incFile>
+            <pElem>bandit</pElem>
+            <pElem>src</pElem>
+          </incFile>
+        </ccTool>
+      </compileType>
+      <item path="src/BinTree.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/CVector.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Deque.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/DoubleList.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/HashTable.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/MapEntry.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Set.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/SingleList.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Stack.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/TreeMap.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Util.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Vector.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/iterator_adapters.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="test/test.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <compilerSet>GNU|GNU</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="src/BinTree.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/CVector.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Deque.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/DoubleList.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/HashTable.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Map.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/MapEntry.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Set.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/SingleList.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Stack.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/TreeMap.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Util.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/Vector.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/iterator_adapters.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="test/test.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

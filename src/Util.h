@@ -6,7 +6,7 @@
  * Estructura de Datos y Algoritmos
  *
  * Copyright (C) 2014
- * Facultad de Informática, Universidad Complutense de Madrid
+ * Facultad de Informï¿½tica, Universidad Complutense de Madrid
  * This software is licensed under the Simplified BSD licence:
  *    (see the LICENSE file or
  *    visit opensource.org/licenses/BSD-3-Clause)
@@ -21,6 +21,7 @@
 #include <exception>
 #include <stdexcept>
 #include <iterator>
+#include <algorithm>
 
 std::ostream& operator<<(std::ostream& out, const std::exception& e) {
     return out << e.what();
@@ -71,6 +72,20 @@ void print(std::string message, const Container &c, std::ostream &out = std::cou
     out << message << " (size " << c.size() << "): ";
     print(c.begin(), c.end(), out, separator);
     out << std::endl;
+}
+
+namespace util
+{
+    /**
+     * Provides the expected member types of a Standard Container
+     */
+    template<typename T>
+    struct container_traits
+    {
+        typedef T  value_type;
+        typedef T& reference_type;
+        typedef T* pointer_type;
+    };
 }
            
 #endif // UTIL_H

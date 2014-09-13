@@ -43,7 +43,7 @@ class SingleList {
         
     Node* _first;  ///< first element in list, 0 if empty
     Node* _last;   ///< last element in list, 0 if empty
-    uint _size;    ///< number of elements in list
+    std::size_t _size;    ///< number of elements in list
 
 public:
     
@@ -76,7 +76,7 @@ public:
     }    
     
     /**  */
-    uint size() const {
+    std::size_t size() const {
         return _size;
     }
 

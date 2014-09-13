@@ -21,24 +21,24 @@
 DECLARE_EXCEPTION(HashTableNoSuchElement)
 
 /// hash for (unsigned) ints
-inline uint hash(uint key) {
+inline std::size_t hash(std::size_t key) {
     return key;
 }
 
 /// hash for (signed) ints
-inline uint hash(int key) {
-    return (uint)key;
+inline std::size_t hash(int key) {
+    return (std::size_t)key;
 }
 
 /// hash for chars
-inline uint hash(char key) {
-    return (uint)key;
+inline std::size_t hash(char key) {
+    return (std::size_t)key;
 }
 
 /// used in Java jdk7
-inline uint hash(std::string key) {
-    uint h = 0;
-    for (uint i=0; i<key.length(); i++) {
+inline std::size_t hash(std::string key) {
+    std::size_t h = 0;
+    for (std::size_t i=0; i<key.length(); i++) {
         h = 31*h + key[i];
     }
     return h;
@@ -48,7 +48,7 @@ inline uint hash(std::string key) {
  * Generic hash function for user classes
  */
 template<class KeyType>
-uint hash(const KeyType& key) {
+std::size_t hash(const KeyType& key) {
     return key.hash();
 }
 
@@ -66,14 +66,14 @@ class HashTable {
     typedef typename Bin::Iterator BinIterator;
     
     /** if _entryCount * _size exceed this, grow */
-    static const uint MAX_LOAD_FACTOR = 4;
+    static const std::size_t MAX_LOAD_FACTOR = 4;
     
     /** initial number of bins */
-    static const uint INITIAL_SIZE = 16;
+    static const std::size_t INITIAL_SIZE = 16;
     
     Bin* _bins;         ///< bins to store elements in
-    uint _size;         ///< current number of bins
-    uint _entryCount;   ///< number of key-value entries stored
+    std::size_t _size;         ///< current number of bins
+    std::size_t _entryCount;   ///< number of key-value entries stored
 
 public:
 
@@ -94,14 +94,14 @@ public:
         _size = other._size;
         _bins = new Bin[_size];
         _entryCount = other.size();
-        for (uint i=0; i<other.size(); i++) {
+        for (std::size_t i=0; i<other.size(); i++) {
             _bins[i] = other._bins[i];
         }
         return (*this);
     }    
 
     /**  */
-    uint size() const {
+    std::size_t size() const {
         return _entryCount;
     }
 
@@ -216,7 +216,7 @@ public:
     
     /** */
     void print(std::ostream &out=std::cout) {
-        for (uint i=0; i<_size; i++) {
+        for (std::size_t i=0; i<_size; i++) {
             out << "bin " << i << ": [";
             ::print(_bins[i].begin(), _bins[i].end(), out, "], [");
             out << "]" << std::endl;
@@ -225,9 +225,9 @@ public:
     
     /** */
     void histogram(std::ostream &out=std::cout) {
-        Vector<uint> sizes;
-        for (uint i=0; i<_size; i++) {
-            uint s = _bins[i].size();
+        Vector<std::size_t> sizes;
+        for (std::size_t i=0; i<_size; i++) {
+            std::size_t s = _bins[i].size();
             while (s >= sizes.size()) {
                 sizes.push_back(0);
             }
@@ -235,14 +235,14 @@ public:
         }
         out << _size << " bins total; chain sizes range from 0 to " 
             << (sizes.size() - 1) << ":" << std::endl;
-        for (uint i=0; i<sizes.size(); i++) {
+        for (std::size_t i=0; i<sizes.size(); i++) {
             out << std::setw(2) << i << ": " << sizes.at(i) << std::endl;
         }      
     }
     
 private:
 
-    uint _rehash(uint h) const {
+    std::size_t _rehash(std::size_t h) const {
         // based on FastHash (https://code.google.com/p/fast-hash)
         h ^= h >> 11;
         h *= 4294967291; // large 32-bit prime
@@ -265,7 +265,7 @@ private:
     
     void _grow() {
         Bin allEntries;
-        for (uint i=0; i<_size; i++) {
+        for (std::size_t i=0; i<_size; i++) {
             allEntries.concat(_bins[i]);
         }
         delete[] _bins;

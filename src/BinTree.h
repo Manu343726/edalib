@@ -16,6 +16,7 @@
 #define __BIN_TREE_H
 
 #include <iomanip>
+#include <iterator>
 
 #include "Util.h"
 #include "Vector.h"
@@ -34,7 +35,7 @@
  * @author mfreire
  */
 template <class Type>
-struct BinTree {
+struct BinTree : public util::container_traits<Type>{
 
     /** */
     struct Node {
@@ -171,7 +172,7 @@ private:
     void _print(Node *n, Vector<char> &bars, char nodeChar,
                std::ostream &out) const {
         if (n) {
-            for (uint i=0; i<bars.size(); i++) {
+            for (std::size_t i=0; i<bars.size(); i++) {
                 out << bars.at(i) << std::setw(3);
             }
             out << nodeChar << "- " << n->_elem << std::endl;

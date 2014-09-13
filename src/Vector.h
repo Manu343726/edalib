@@ -19,6 +19,7 @@
 #include <algorithm>
 
 #include "Util.h"
+#include "iterator_adapters.hpp"
 
 DECLARE_EXCEPTION(VectorInvalidIndex)
 
@@ -32,11 +33,11 @@ template <class Type>
 class Vector {
 
     /// initial size to reserve for an empty vector
-    static const uint INITIAL_SIZE = 16;
+    static const std::size_t INITIAL_SIZE = 16;
 
     Type* _v;   ///< dynamically-reserved array of elements
-    uint _used; ///< number of slots used
-    uint _max;  ///< total number of slots in _v
+    std::size_t _used; ///< number of slots used
+    std::size_t _max;  ///< total number of slots in _v
    
 public:
    
@@ -50,7 +51,7 @@ public:
         _used(other._used), _max(other._max) {
 
         _v = new Type[other._max];
-        for (uint i=0; i<_used; i++) {
+        for (std::size_t i=0; i<_used; i++) {
             _v[i] = other._v[i];
         }        
     }
@@ -67,18 +68,18 @@ public:
         _max = other._max;
         _v = new Type[_max];
         _used = other.size();
-        for (uint i=0; i<other.size(); i++) {
+        for (std::size_t i=0; i<other.size(); i++) {
             _v[i] = other._v[i];
         }
         return (*this);
     }    
 
     /**  */
-    uint size() const {
+    std::size_t size() const {
         return _used;
     }
 
-    class Iterator {
+    class Iterator : public util::edatocpp_iterator_adapter<Iterator,Type> {
     public:
         void next() {
             _pos ++;
@@ -102,15 +103,15 @@ public:
         
         const Vector* _dv;
         
-        uint _pos;
+        std::size_t _pos;
         
-        Iterator(const Vector *dv, uint pos)
+        Iterator(const Vector *dv, std::size_t pos)
             : _dv(dv), _pos(pos) {}
     };    
     
     /** */
     const Iterator find(const Type& e) const {
-        for (uint i=0; i<_used; i++) {
+        for (std::size_t i=0; i<_used; i++) {
             if (e == _v[i]) {
                 return Iterator(this, i);
             }
@@ -139,7 +140,7 @@ public:
     } 
     
     /** */
-    const Type& at(uint pos) const {        
+    const Type& at(std::size_t pos) const {        
         if (pos < 0 || pos >= _used) {
             throw VectorInvalidIndex("at");
         }
@@ -147,7 +148,7 @@ public:
     }
 
     /** */
-    Type& at(uint pos) {
+    Type& at(std::size_t pos) {
         NON_CONST_VARIANT(Type,Vector,at(pos));
     }
     
@@ -182,7 +183,7 @@ public:
         if (_used == _max) {
             _grow();
         }
-        for (uint i=_used; i>0; i--) {
+        for (std::size_t i=_used; i>0; i--) {
             _v[i] = _v[i-1];
         }
         _v[0] = e;
@@ -216,7 +217,7 @@ private:
         _max *= 2;
         Type *old = _v;
         _v = new Type[_max];
-        for (uint i=0; i<_used; i++) {
+        for (std::size_t i=0; i<_used; i++) {
             _v[i] = old[i];
         }
         delete[] old;
