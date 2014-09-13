@@ -19,17 +19,19 @@
 #include <iostream>
 #include <iosfwd>
 #include <exception>
+#include <stdexcept>
+#include <iterator>
 
 std::ostream& operator<<(std::ostream& out, const std::exception& e) {
-    return out << e.msg();
+    return out << e.what();
 }
 
 /// Macro to create subclasses of the base exception.
 ///     use as: DECLARE_EXCEPTION(UniqueExceptionName)
 #define DECLARE_EXCEPTION(ExceptionSubclass) \
-class ExceptionSubclass : public std::exception { \
+class ExceptionSubclass : public std::logic_error { \
 public: \
-    using std::exception::exception; \
+    using std::logic_error::logic_error; \
 };
 
 /// Macro to constify an operation.
@@ -55,7 +57,7 @@ void copy_back(It first, It last, Container& target) {
 template<class It>
 void print(It first, It last, std::ostream &out = std::cout,
            std::string separator = std::string(", ")) {
-    std::copy( first , last , std::ostream_iterator<typename IT::value_type>( out , separator ) );
+    std::copy( first , last , std::ostream_iterator<typename It::value_type>( out , separator ) );
 }
 
 /**

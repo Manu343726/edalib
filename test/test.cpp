@@ -12,6 +12,10 @@
 #include "Set.h"
 #include "BinTree.h"
 
+#include "bandit.h"
+
+using namespace bandit;
+
 using namespace std;
 
 void testVectorStack() {
@@ -368,21 +372,41 @@ void testTreeDiagnostic() {
 }
 
 
-int main() {
-    testCVector();    
-    testVectorStack();
-    testListStack();
-    testUtils();
-    testIterators();
-    
-    testTree();
-    
-    testHash();
-    testSet();
-    testTreeMap();
-    testMap();    
-    testHashVsTreeMap();
-    testHistogram();
-    testTreeDiagnostic();
-    return 0;
+
+/* Unit tests */
+
+go_bandit([]()
+{
+    describe("Running assert-based tests" , []()
+    {
+        it("Testing containers...",[]()
+        {
+            testCVector();
+            testVectorStack();
+            testListStack();
+            testUtils();
+            testsIterators();
+        });
+
+        it("Testing tree",[]()
+        {
+            testTree();
+        });
+
+        it("Testing maps",[]()
+        {
+            testHash();
+            testSet();
+            testTreeMap();
+            testMap();
+            testHashVsTreeMap();
+            testHistogram();
+            testTreeDiagnostic();
+        });
+    });
+});
+
+
+int main(int argc , char* argv[]) {
+    return bandit::run(argc,argv);
 }
