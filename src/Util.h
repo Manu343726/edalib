@@ -12,43 +12,24 @@
  *    visit opensource.org/licenses/BSD-3-Clause)
  */
 
-#ifndef __UTIL_H
-#define __UTIL_H
+#ifndef UTIL_H //Avoid names starting with underscores, has UB (Are reserved names)
+#define UTIL_H
 
 #include <string>
 #include <iostream>
 #include <iosfwd>
+#include <exception>
 
-typedef unsigned int uint;
-typedef unsigned long ulong;
-
-/**
- * Class that all exception types inherit from
- */
-class AbstractException {
-public:
-    AbstractException () {}
-    AbstractException (const std::string &msg) : _msg(msg) {}
-
-    const std::string msg() const { return _msg; }
-
-    friend std::ostream &operator<<(std::ostream &out, const AbstractException  &e);
-
-protected:
-    std::string _msg;
-};
-
-inline std::ostream &operator<<(std::ostream &out, const AbstractException &e) {
-    return out << e._msg;
+std::ostream& operator<<(std::ostream& out, const std::exception& e) {
+    return out << e.msg();
 }
 
 /// Macro to create subclasses of the base exception.
 ///     use as: DECLARE_EXCEPTION(UniqueExceptionName)
 #define DECLARE_EXCEPTION(ExceptionSubclass) \
-class ExceptionSubclass : public AbstractException { \
+class ExceptionSubclass : public std::exception { \
 public: \
-    ExceptionSubclass() {}; \
-    ExceptionSubclass(const std::string &msg) : AbstractException(msg) {} \
+    using std::exception::exception; \
 };
 
 /// Macro to constify an operation.
@@ -56,16 +37,14 @@ public: \
 ///     use to provide the implementation of a non-const variant as:
 ///        NON_CONST_VARIANT(Something,Myclass,myOperation(...));
 #define NON_CONST_VARIANT(Return,Class,Call) \
-return const_cast<Return&>(static_cast<const Class*>(this)->Call)
+return const_cast<Return&>(static_cast<const Class*>(this)->Call) //AVOID IF POSSIBLE, HAS UB. Provide different overloads
 
 /**
  * Copies all elements between first and last at the back of a given container
  */
 template<class It, class Container>
 void copy_back(It first, It last, Container& target) {
-    for (It& current=first; current != last; current.next()) {
-        target.push_back(current.elem());
-    }
+    std::copy( first , last , std::back_inserter( target ) );
 }
 
 /**
@@ -76,13 +55,7 @@ void copy_back(It first, It last, Container& target) {
 template<class It>
 void print(It first, It last, std::ostream &out = std::cout,
            std::string separator = std::string(", ")) {
-    if (first != last) {
-        It& current = first;
-        out << current.elem();
-        for (current.next(); current != last; current.next()) {
-            out << separator << current.elem();
-        }
-    }
+    std::copy( first , last , std::ostream_iterator<typename IT::value_type>( out , separator ) );
 }
 
 /**
@@ -98,4 +71,4 @@ void print(std::string message, const Container &c, std::ostream &out = std::cou
     out << std::endl;
 }
            
-#endif // __UTIL_H
+#endif // UTIL_H
