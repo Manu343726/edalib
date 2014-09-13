@@ -32,18 +32,18 @@ Allow quick lookup, addition and removal of elements indexed by a key. Support t
 Decorate an associative container, allowing fewer operations but with a cleaner interface.
 
 * [Map.h](https://github.com/manuel-freire/edalib/blob/master/src/Map.h): conventional maps. Use ```Map<KeyType, ValueType>::T``` for the tree and ```Map<KeyType, ValueType>::H``` for the hash versions.
-* [Set.h](https://github.com/manuel-freire/edalib/blob/master/src/Set.h): conventional sets. Use ```Set<KeyType>::T``` for the tree and ```Set<KeyType>::H``` for the hash version; ```Set<KeyType>::T``` is similar to [`std::set`](http://en.cppreference.com/w/cpp/container/set).
+* [Set.h](https://github.com/manuel-freire/edalib/blob/master/src/Set.h): conventional sets. Use ```Set<KeyType>::T``` for the tree and ```Set<KeyType>::H``` for the hash version. ```Set<KeyType>::T``` is similar to [`std::set`](http://en.cppreference.com/w/cpp/container/set), while `Set<KeyType>::H` is similar to [`std::unordered_set`](http://en.cppreference.com/w/cpp/container/unordered_set).
 
 ##### Misc. Utilities
 
 All previous files ```#include``` [Util.h](https://github.com/manuel-freire/edalib/blob/master/src/Util.h) for macros and typedefs.
 
 * [BinTree.h](https://github.com/manuel-freire/edalib/blob/master/src/BinTree.h): provides a fully-exposed implementation of binary tree nodes and operations (including pretty-printing). Useful to implement customized trees. Used in the implementation of the [TreeMap](https://github.com/manuel-freire/edalib/blob/master/src/TreeMap.h).
-* [Util.h](https://github.com/manuel-freire/edalib/blob/master/src/Util.h): provides a few useful macros and typedefs, allows printing out any structure with iterators, and copying into any structure with a ```push_back()``` inserter.
+* [Util.h](https://github.com/manuel-freire/edalib/blob/master/src/Util.h): provides a few useful macros, allows printing out any structure with iterators, and copying into any structure with a ```push_back()``` inserter.
 
 ##### Other files
 
-* [test/test.cpp](https://github.com/manuel-freire/edalib/blob/master/test/test.cpp): a set of tests, which is neither exhaustive nor particularly organized. Mostly for testing during development.
+* [test/test.cpp](https://github.com/manuel-freire/edalib/blob/master/test/test.cpp): a set of unit tests, which is neither exhaustive nor particularly organized. Mostly for testing during development.
 * LICENSE: the BSD 3-clause license, under which *edalib* is licensed.
 * doxyfile: to generate documentation. Install doxygen and launch using ```doxygen doxyfile``` from the root of the project.
 * SConstruct: to build the tests in a cross-platform manner. Install SCons and launch via ```scons``` from the root of the project. Use ```scons -c``` to clean compilation products.
