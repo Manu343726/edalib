@@ -24,13 +24,17 @@ DECLARE_EXCEPTION(SingleListOutOfBounds)
  * A singly-linked list. Slow access (except for front and back),
  * but fast insertion anywhere once you are at the right position.
  * Erasing the first element, or 'next' elements in general is fast.
+ * 
+ * Manu Sánchez note: Are you sure? See some modern profilings, the CPU cache kills linked-lists
+ * even for millions of elements and insertions (And malloc() doesn't help). Use compact data (Vector) whenever possible, execept if
+ * those elements are hard (Takes time or space) to copy.
  *
  * push_front, push_back, and pop_front are O(1)
  * 
  * @author mfreire
  */
 template <class Type>
-class SingleList {
+class SingleList : public util::container_traits<Type> {
     
     /** */
     struct Node {
@@ -80,7 +84,7 @@ public:
         return _size;
     }
 
-    class Iterator {
+    class Iterator : public util::edatocpp_iterator_adapter<Iterator,Type> {
     public:
         void next() {
             _current = _current->_next;
@@ -90,10 +94,12 @@ public:
             return _current->_elem;
         }
         
-        Type& elem() { NON_CONST_VARIANT(Type, Iterator, elem()); }
+        Type& elem() { 
+            return _current->_elem; 
+        }
         
-        void set(const Type& elem) {
-            _current->_elem = elem;
+        void set(const Type& e) {
+            elem() = e;
         }
         
         bool operator==(const Iterator &other) const {
@@ -112,13 +118,8 @@ public:
     };
     
     /** */
-    const Iterator find(const Type& e) const {
-        for (Iterator it(_first); it != end(); it.next()) {
-            if (e == it.elem()) {
-                return it;
-            }
-        }
-        return end();
+    Iterator find(const Type& e) const { //Note that the rationale behind returning by const value is obsolete (Even without move-semantics, it could prevent RVO)
+        return std::find( begin() , end() , e );
     }
     
     /** */

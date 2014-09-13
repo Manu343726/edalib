@@ -30,7 +30,7 @@ DECLARE_EXCEPTION(VectorInvalidIndex)
  * @author mfreire
  */
 template <class Type>
-class Vector {
+class Vector : public util::container_traits<Type> {
 
     /// initial size to reserve for an empty vector
     static const std::size_t INITIAL_SIZE = 16;

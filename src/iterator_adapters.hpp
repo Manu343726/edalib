@@ -3,6 +3,8 @@
  * Author: Manu Sánchez (Manu343726 @ twitter, github, stackoverflow, etc)
  *
  * Created on 13 de septiembre de 2014, 19:34
+ * 
+ * This file is published under the BSD License, see the LICENSE file for more info.
  */
 
 #ifndef ITERATOR_ADAPTERS_HPP
@@ -12,10 +14,10 @@
 #include <type_traits>
 
 /**
- * Since seems like you are not aware of how C++ iterators work, and still write them in the Java way, this header provides several adaptors to
+ * Since you write iterators in a Java way, instead of the C++ way, this header provides several adaptors to
  * translate an Iterator class from your Java-like syntax (Next(), elem(), set(), etc) to the C++ one (operator++ , operator* , etc) and vice-versa.
  * 
- * First define some contraints:
+ * First define some constraints:
  * 
  *  - Forward iterators and bidirectional iterators only. C++ defines some tags to identify such cathegories (std::forward_iterator_tag , etc). 
  *    Note that I discarded the random access iterator cathegory, so expressions like "it + 4" will not be supported.
@@ -23,6 +25,12 @@
  *    In your Java-like iterators, I will suppose that:
  *        a) An iterator type with elem() (Read/Write, avoid set() please) and next() members only is a forward iterator.
  *        b) An iterator type with elem() , next() , and prev() members is a bidirectional iterator.
+ * 
+ * 
+ * The point of these adaptors is to leave the iterators readable for your students (You are teaching Java and C++ in a Java way, even if its a very bad idea IMHO), using
+ * constructs like set(), get(), next(), etc, while those iterators work with C++ too, since they define a C++-ready interface automatically based on your Java-like interface.
+ * 
+ * Also note this has no runtime overhead at all, everything is done at compile-time in a way which allows the compiler to optimize away all the abstractions.
  */
 
 namespace util
@@ -86,6 +94,7 @@ namespace util
    
    /*
     * We don't know the value type of an EDA iterator type T (Since its not following the conventions), so here is a workaround:
+    * (A non-working workaround... Thats why the adapters have a second parameter, the value type)
     */
    template<typename T>
    using eda_iterator_value_type = typename std::decay<decltype(&T::elem)>::type;
@@ -106,9 +115,9 @@ namespace util
        
        
        
-       //Using C++14 this is easier, since we can use function return type deduction, but in this case we will use those traits defined above.
+       //Using C++14 this is easier, since we can use function return type deduction, but in this case we will use these traits defined above.
        
-       typename iterator_traits::value_type operator*() const
+       const typename iterator_traits::value_type& operator*() const
        {
            return static_cast<T*>(this)->elem();
        }
@@ -133,6 +142,10 @@ namespace util
    };
    
    
+   /*
+    * Is there a way to automatize this avoiding copy-pasting code, but its done via typelists, tye-maps, etc; and I don't want to add dependencies
+    * to my Turbo library here... Lets get simpler, just good old clipboard.
+    */
    
     template<typename T , typename VT>
     struct edatocpp_iterator_adapter<T,VT,std::bidirectional_iterator_tag> : public std::iterator<std::bidirectional_iterator_tag,VT>
@@ -143,7 +156,7 @@ namespace util
 
         //Using C++14 this is easier, since we can use function return type deduction, but in this case we will use those traits defined above.
 
-        typename iterator_traits::value_type operator*( ) const
+        const typename iterator_traits::value_type& operator*( ) const
         {
             return static_cast<T*>( this )->elem( );
         }

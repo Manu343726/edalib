@@ -24,19 +24,51 @@ go_bandit([]()
 {
     describe("Testing iterator adapters" , []()
     {
-        Vector<int> v;
+        std::array<int,5> source = { 1 , 2 , 3 , 4 , 5 };
         
-        v.push_back(1);
-        v.push_back(2);
-        v.push_back(3);
-        v.push_back(4);
         
         it("Testing Vector::Iterator",[&]()
         {
-            AssertThat(std::accumulate(std::begin(v) , std::end(v) , 0 , [](int x , int y){ return x + y;} ) , Equals(10));
+            Vector<int> v;
             
-            for( const auto& e : v )
-                std::cout << e << " ";
+            AssertThat( ( std::copy( std::begin(source) , std::end(source) , std::back_inserter(v) ) , v.size() ) , 
+                        Equals(source.size())
+                      );
+            
+            AssertThat( std::equal( std::begin(v) , std::end(v) , std::begin(source) ) , Equals(true) );
+            
+            AssertThat(std::accumulate(std::begin(v) , std::end(v) , 0 , [](int x , int y){ return x + y;} ) , Equals(15));
+            
+            for( auto& e : v )
+                e *= e;
+            
+            AssertThat( ( std::transform( std::begin(v) , std::end(v) , std::begin(v) , [](int x){ return x - 1; } ) ,
+                          std::find( std::begin(v) , std::end(v) , 15 ) // 4*4 - 1
+                        ) , 
+                        Is().Not().EqualTo( std::end(v) )
+                      );
+        });
+        
+        it("Testing SingleList::Iterator",[&]()
+        {
+            SingleList<int> s;
+            
+            AssertThat( ( std::copy( std::begin(source) , std::end(source) , std::back_inserter(s) ) , s.size() ) , 
+                        Equals(source.size())
+                      );
+            
+            AssertThat( std::equal( std::begin(s) , std::end(s) , std::begin(source) ) , Equals(true) );
+            
+            AssertThat(std::accumulate(std::begin(s) , std::end(s) , 0 , [](int x , int y){ return x + y;} ) , Equals(15));
+            
+            for( auto& e : s )
+                e *= e;
+            
+            AssertThat( ( std::transform( std::begin(s) , std::end(s) , std::begin(s) , [](int x){ return x - 1; } ) ,
+                          std::find( std::begin(s) , std::end(s) , 15 ) // 4*4 - 1
+                        ) , 
+                        Is().Not().EqualTo( std::end(s) )
+                      );
         });
     });
 });
