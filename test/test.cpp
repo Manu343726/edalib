@@ -12,7 +12,7 @@
 #include "Set.h"
 #include "BinTree.h"
 
-#include "bandit.h"
+#include <bandit/bandit.h>
 
 using namespace bandit;
 
