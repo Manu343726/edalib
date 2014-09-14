@@ -36,7 +36,7 @@ install:
   - $CXX --version
     
   - if [ "$CXX" == "g++" ]; then g++ -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit; fi
-  - if [ "$CXX" == "clang++" ]; then clang++ -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit -stdlib=libc++; fi
+  - if [ "$CXX" == "clang++" ]; then clang++ -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit; fi
     
   - cd test
 script:
