@@ -29,10 +29,11 @@ install:
   - if [ "$CXX" == "clang++" ]; then cd /usr/lib && sudo ln -sf libc++.so.1.0 libc++.so; fi
   - if [ "$CXX" == "clang++" ]; then sudo ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi #POP
     
-    - $CXX --version
-    - if [ "$CXX" == "g++"     ]; then g++     -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit; fi
-    - if [ "$CXX" == "clang++" ]; then clang++ -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit -stdlib=libc++ -lc++abi; fi
+  - $CXX --version
     
-    - cd test
+  - if [ "$CXX" == "g++" ]; then g++ -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit; fi
+  - if [ "$CXX" == "clang++" ]; then clang++ -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit -stdlib=libc++ -lc++abi; fi
+    
+  - cd test
 script:
     - ./test --reporter=info
