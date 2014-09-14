@@ -19,6 +19,7 @@
 #include <iterator>
 
 #include "Util.h"
+#include "iterator_adapters.hpp"
 
 DECLARE_EXCEPTION(CVectorInvalidIndex)
 
@@ -113,42 +114,17 @@ public:
         return _used;
     }
     
-    class Iterator : public std::iterator<std::forward_iterator_tag,Type> {
+    class Iterator : public util::edatocpp_iterator_adapter<Iterator,Type> {
     public:
         void next() {
             _pos = _cv->_inc(_pos);
         }
-        
-        Iterator& operator++()
-        {
-            next();
-            return *this;
-        }
-        
-        Iterator operator++(int)
-        {
-            Iterator cpy{ *this };
-            ++(*this);
-            return cpy;
-        }
-        
-        
         
         const Type& elem() const {
             return _cv->_v[_pos];
         }
         
         Type& elem() { NON_CONST_VARIANT(Type, Iterator, elem()); }
-        
-        const Type& operator*() const
-        {
-            return elem();
-        }
-        
-        Type& operator*()
-        {
-            return elem();
-        }
 
         bool operator==(const Iterator &other) const {
             return _pos == other._pos;
