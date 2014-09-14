@@ -35,8 +35,8 @@
  * @author mfreire
  */
 template <class Type>
-struct BinTree : public util::container_traits<Type>{
-
+struct BinTree : public util::container_traits<BinTree<Type>,Type>{
+private:
     /** */
     struct Node {
         Type _elem;   ///< actual element stored in node
@@ -155,7 +155,7 @@ struct BinTree : public util::container_traits<Type>{
      * </pre>
      * empty nodes are not represented.
      */
-    void print(Node *n, std::ostream &out=std::cout) const {
+    void print(Node *n, std::ostream& out=std::cout) const {
         Vector<char> bars;
         if (n) {
             out << "*- " << n->_elem << std::endl;
@@ -169,7 +169,7 @@ struct BinTree : public util::container_traits<Type>{
     
 private:
     
-    void _print(Node *n, Vector<char> &bars, char nodeChar,
+    void _print(Node *n, Vector<char>& bars, char nodeChar,
                std::ostream &out) const {
         if (n) {
             for (std::size_t i=0; i<bars.size(); i++) {

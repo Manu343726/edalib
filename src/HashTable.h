@@ -61,7 +61,8 @@ std::size_t hash(const KeyType& key) {
  * @author mfreire
  */
 template <class KeyType, class ValueType>
-class HashTable : public util::container_traits<ValueType> {
+class HashTable : public util::container_traits<HashTable<KeyType,ValueType>,ValueType> {
+private:
     typedef MapEntry<KeyType, ValueType> Entry;
     typedef DoubleList<Entry> Bin;
     typedef typename Bin::Iterator BinIterator;
@@ -132,6 +133,9 @@ public:
         bool operator!=(const Iterator &other) const {
             return _it != other._it;
         }
+        
+        //Note that an iterator should always be default constructible
+        Iterator() = default;
     protected:
         friend class HashTable;
         
@@ -154,6 +158,8 @@ public:
             }
         }
     };
+    
+    ADD_ITERATOR_TRAITS()
     
     /** */
     const Iterator find(const KeyType& key) const {

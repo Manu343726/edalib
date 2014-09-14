@@ -30,8 +30,8 @@ DECLARE_EXCEPTION(CVectorInvalidIndex)
  * @author mfreire
  */
 template <class Type>
-class CVector : public util::container_traits<Type> {
-
+class CVector : public util::container_traits<CVector<Type>,Type> {
+private:
     /// initial size to reserve for an empty vector
     static const std::size_t INITIAL_SIZE = 16;
     
@@ -44,8 +44,9 @@ class CVector : public util::container_traits<Type> {
 public:
     
     /**  */
-    CVector() : _start(0), _end(0), _used(0), _max(INITIAL_SIZE) {
-        _v = new Type[_max];
+    CVector(bool prealloc = true) : _start(0), _end(0), _used(0), _max(INITIAL_SIZE) , _v{nullptr} //Never leave a member uninitialized. If something on the constructor fails could be a problem
+    {
+        _v = prealloc ? new Type[_max] : nullptr;
     }
     
     /**  */
@@ -60,12 +61,29 @@ public:
     }    
     
     /**  */
+    CVector( CVector&& other ) : CVector{false} {
+        std::swap(_v     , other._v);
+        std::swap(_start , other._start);
+        std::swap(_end   , other._end);
+        std::swap(_used  , other._used);
+        std::swap(_max   , other._max);         
+    }    
+    
+    /** */
+    CVector( const std::initializer_list<Type>& il ) : CVector{} {
+        //You have no reserve() like ctor/function, so don't complain about performance, ok?
+        
+        for( const Type& e : il )
+            push_back(e);
+    }
+    
+    /**  */
     ~CVector() {
         delete[] _v;
         _v = 0;
     }
 
-    /** */
+    /**  */
     CVector& operator=(const CVector& other) {
         delete _v;
         _max = other._max;
@@ -78,6 +96,17 @@ public:
         _end = _used;
         return (*this);
     }    
+    
+    /** */
+    CVector& operator=( CVector&& other ){
+        std::swap(_v     , other._v);
+        std::swap(_start , other._start);
+        std::swap(_end   , other._end);
+        std::swap(_used  , other._used);
+        std::swap(_max   , other._max); 
+        
+        return *this;
+    }
     
     /**  */
     std::size_t size() const {
@@ -128,6 +157,10 @@ public:
         bool operator!=(const Iterator &other) const {
             return _pos != other._pos;
         }
+        
+        //Note that an iterator should always be default constructible
+        Iterator() = default;
+        
     protected:
         friend class CVector;
         
@@ -137,7 +170,9 @@ public:
         
         Iterator(const CVector *cv, std::size_t pos)
             : _cv(cv), _pos(pos) {}
-    };    
+    };  
+    
+    ADD_ITERATOR_TRAITS()
     
     /** */
     const Iterator find(const Type& e) const {

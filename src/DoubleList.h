@@ -31,8 +31,8 @@ DECLARE_EXCEPTION(DoubleListOutOfBounds)
  * @author mfreire
  */
 template <class Type>
-class DoubleList : public util::container_traits<Type> {
-    
+class DoubleList : public util::container_traits<DoubleList<Type>,Type> {
+private:
     /** */
     struct Node {
         Type _elem;   ///< actual element stored in node
@@ -109,6 +109,9 @@ public:
         bool operator!=(const Iterator &other) const {
             return _current != other._current;
         }
+        
+        //Note that an iterator should always be default constructible
+        Iterator() = default;
     protected:
         friend class DoubleList;
         
@@ -116,6 +119,8 @@ public:
         
         Iterator(Node *n) : _current(n) {}
     };
+    
+    ADD_ITERATOR_TRAITS()
     
     /** */
     const Iterator find(const Type& e) const {

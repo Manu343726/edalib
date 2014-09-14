@@ -34,8 +34,8 @@ DECLARE_EXCEPTION(SingleListOutOfBounds)
  * @author mfreire
  */
 template <class Type>
-class SingleList : public util::container_traits<Type> {
-    
+class SingleList : public util::container_traits<SingleList<Type>,Type> {
+private:
     /** */
     struct Node {
         Type _elem;   ///< actual element stored in node
@@ -109,6 +109,9 @@ public:
         bool operator!=(const Iterator &other) const {
             return _current != other._current;
         }
+        
+        //Note that an iterator should always be default constructible
+        Iterator() = default;
     protected:
         friend class SingleList;
         
@@ -116,6 +119,8 @@ public:
         
         Iterator(Node *n) : _current(n) {}
     };
+    
+    ADD_ITERATOR_TRAITS()
     
     /** */
     Iterator find(const Type& e) const { //Note that the rationale behind returning by const value is obsolete (Even without move-semantics, it could prevent RVO)

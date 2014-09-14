@@ -24,7 +24,7 @@
  * @author mfreire
  */
 template <class Type, class Container = DoubleList<Type> >
-class Deque : public util::container_traits<Type> {
+class Deque {
 
     /** */
     Container _v;

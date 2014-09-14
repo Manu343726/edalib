@@ -79,7 +79,7 @@ namespace util
     /**
      * Provides the expected member types of a Standard Container
      */
-    template<typename T>
+    template<typename C , typename T>
     struct container_traits
     {
         typedef T  value_type;
@@ -87,5 +87,12 @@ namespace util
         typedef T* pointer_type;
     };
 }
+
+/**
+ * Adds the required iterator traits to a container
+ */
+#define ADD_ITERATOR_TRAITS() public:                            \
+                                typedef Iterator iterator;       \
+                                typedef Iterator const_iterator;
            
 #endif // UTIL_H

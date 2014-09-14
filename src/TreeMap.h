@@ -32,7 +32,8 @@ DECLARE_EXCEPTION(TreeMapInvalidAccess)
  * @author mfreire
  */
 template <class KeyType, class ValueType>
-class TreeMap : public util::container_traits<ValueType> {
+class TreeMap : public util::container_traits<TreeMap<KeyType,ValueType>,ValueType> {
+private:
     typedef MapEntry<KeyType, ValueType> Entry;
     typedef typename BinTree<Entry>::Node Node;
     
@@ -84,6 +85,9 @@ public:
             return _current != other._current;
         }        
         
+        //Note that an iterator should always be default constructible
+        Iterator() = default;
+        
     protected:
         friend class TreeMap;
         
@@ -128,6 +132,8 @@ public:
             return n;
         }
     };
+    
+    ADD_ITERATOR_TRAITS()
     
     /** */
     const Iterator find(const KeyType& key) const {

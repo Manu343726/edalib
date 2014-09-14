@@ -30,12 +30,13 @@ DECLARE_EXCEPTION(VectorInvalidIndex)
  * @author mfreire
  */
 template <class Type>
-class Vector : public util::container_traits<Type> {
-
+class Vector : public util::container_traits<Vector<Type>,Type> {
+private:
+    
     /// initial size to reserve for an empty vector
     static const std::size_t INITIAL_SIZE = 16;
 
-    Type* _v;   ///< dynamically-reserved array of elements
+    Type* _v;          ///< dynamically-reserved array of elements
     std::size_t _used; ///< number of slots used
     std::size_t _max;  ///< total number of slots in _v
    
@@ -98,6 +99,10 @@ public:
         bool operator!=(const Iterator &other) const {
             return _pos != other._pos;
         }
+        
+        //Note that an iterator should always be default constructible
+        Iterator() = default;
+        
     protected:
         friend class Vector;
         
@@ -107,7 +112,9 @@ public:
         
         Iterator(const Vector *dv, std::size_t pos)
             : _dv(dv), _pos(pos) {}
-    };    
+    }; 
+    
+    ADD_ITERATOR_TRAITS()
     
     /** */
     const Iterator find(const Type& e) const {
