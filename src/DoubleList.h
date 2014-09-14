@@ -141,12 +141,22 @@ public:
     Iterator end() const {
         return Iterator(0);
     }
+    
+    /** */
+    Iterator begin() {
+        return Iterator(_first);
+    }
+    
+    /** */
+    Iterator end() {
+        return Iterator(0);
+    }
 
     /**
      * Inserts before the given node,
      * so that it->elem() will return 'e'
      */
-    void insert(Iterator &it, const Type& e) {
+    Iterator insert(Iterator it, const Type& e) { //Always pass iterators by value. If you want the updated iterator, you should return it. See the erase-remove idiom for example.
         if (it == begin()) {
             push_front(e);
             it._current = _first;
@@ -166,10 +176,12 @@ public:
             it.prev();
             _size ++;
         }
+        
+        return it;
     }
 
     /** */
-    void erase(Iterator &it) {
+    Iterator erase(Iterator it) { //Always pass iterators by value. If you want the updated iterator, you should return it. See the erase-remove idiom for example.
         if (_size == 0) {
             throw DoubleListEmpty("erase");
         } else if (it == end()) {
@@ -191,6 +203,8 @@ public:
             delete n;
             _size --;
         }
+        
+        return it;
     }
     
     /**  */

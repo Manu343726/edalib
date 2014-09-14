@@ -43,12 +43,7 @@ public:
     /**  */
     void push_front(const Type& e) {
         _v.push_front(e);
-    }
-
-    /**  */
-    void pop_front() {
-        _v.pop_front();
-    }    
+    }   
 
     /**  */
     const Type& front() const {
@@ -61,7 +56,7 @@ public:
     }
     
     /**  */    
-    uint size() const {
+    std::size_t size() const {
         return _v.size();
     }
 };

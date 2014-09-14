@@ -8,6 +8,7 @@
 #include "CVector.h"
 #include "Stack.h"
 #include "Queue.h"
+#include "Deque.h"
 #include "HashTable.h"
 #include "Map.h"
 #include "Set.h"
@@ -101,6 +102,56 @@ void test_cpp11_linear()
     });
 }
     
+//Container tests
+
+template<typename C , typename T>
+void push( C& container , const T& e )
+{
+    container.push( e );
+}
+
+template<typename C>
+void pop( C& container)
+{
+    container.pop();
+}
+
+template<typename... ARGS , typename T>
+void push( Deque<ARGS...>& d , const T& e )
+{
+    d.push_back( e );
+}
+
+template<typename... ARGS>
+void pop( Deque<ARGS...>& d )
+{
+    d.pop_front();
+}
+
+template<template<typename...> class CA , template<typename...> class C>
+void testContainerAdapter() {         
+    CA<int,C<int>> s, t;
+    
+    it("Is initialized correctly" , [&]()
+    {
+        AssertThat(s.size() , Is().EqualTo(0));
+    });
+    
+    it("Pushes correctly",[&]()
+    {
+        push(s,1);
+        push(s,2);
+        t = s;
+        AssertThat(s.size() , Is().EqualTo(2));
+        AssertThat(t.size() , Is().EqualTo(2));
+    });
+    
+    it("Pops correctly",[&]()
+    {
+        pop(s);
+        AssertThat(s.size() , Is().EqualTo(1));
+    });
+}
 
 go_bandit([]()
 {
@@ -132,6 +183,68 @@ go_bandit([]()
         describe("Testing CVector",[]()
         {
             test_cpp11_linear<CVector<int>>();
+        });
+    });
+    
+    describe("Testing edalib container adapters" , []()
+    {
+        describe("Testing Stack with linear containers",[]()
+        {
+            describe("Testing Stack<Vector>",[]()
+            {
+                testContainerAdapter<Stack,Vector>();
+            });
+            
+            describe("Testing Stack<CVector>",[]()
+            {
+                testContainerAdapter<Stack,CVector>();
+            });
+            
+            describe("Testing Stack<DoubleList>",[]()
+            {
+                testContainerAdapter<Stack,DoubleList>();
+            });
+        });
+        
+        describe("Testing Queue with linear containers",[]()
+        {
+            describe("Testing Queue<Vector>",[]()
+            {
+                testContainerAdapter<Queue,Vector>();
+            });
+            
+            describe("Testing Queue<CVector>",[]()
+            {
+                testContainerAdapter<Queue,CVector>();
+            });
+            
+            describe("Testing Queue<SingleList>",[]()
+            {
+                testContainerAdapter<Queue,SingleList>();
+            });
+            
+            describe("Testing Queue<DoubleList>",[]()
+            {
+                testContainerAdapter<Queue,DoubleList>();
+            });
+        });
+        
+        describe("Testing Deque with linear containers",[]()
+        {
+            describe("Testing Deque<Vector>",[]()
+            {
+                testContainerAdapter<Deque,Vector>();
+            });
+            
+            describe("Testing Deque<CVector>",[]()
+            {
+                testContainerAdapter<Deque,CVector>();
+            });
+            
+            describe("Testing Deque<DoubleList>",[]()
+            {
+                testContainerAdapter<Deque,DoubleList>();
+            });
         });
     });
 });
