@@ -26,3 +26,4 @@
 *.out
 *.app
 /build/
+/test/*!.cpp
