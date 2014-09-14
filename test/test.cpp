@@ -20,55 +20,54 @@ using namespace bandit;
 
 /* Unit tests */
 
+//Iterator adapters tests:
+
+template<typename C>
+void test_iterators_linear()
+{
+    C c;
+    auto source = { 1 , 2 , 3 , 4 , 5 };
+            
+    AssertThat( ( std::copy( std::begin(source) , std::end(source) , std::back_inserter(c) ) , c.size() ) , 
+                Equals(source.size())
+              );
+
+    AssertThat( std::equal( std::begin(c) , std::end(c) , std::begin(source) ) , Equals(true) );
+
+    AssertThat(std::accumulate(std::begin(c) , std::end(c) , 0 , [](int x , int y){ return x + y;} ) , Equals(15));
+
+    for( auto& e : c )
+        e *= e;
+
+    AssertThat( ( std::transform( std::begin(c) , std::end(c) , std::begin(c) , [](int x){ return x - 1; } ) ,
+                  std::find( std::begin(c) , std::end(c) , 15 ) // 4*4 - 1
+                ) , 
+                Is().Not().EqualTo( std::end(c) )
+              );
+}
+
 go_bandit([]()
 {
-    describe("Testing iterator adapters" , []()
+    describe("Testing iterator adapters on linear containers" , []()
     {
-        std::array<int,5> source = { 1 , 2 , 3 , 4 , 5 };
-        
-        
         it("Testing Vector::Iterator",[&]()
         {
-            Vector<int> v;
-            
-            AssertThat( ( std::copy( std::begin(source) , std::end(source) , std::back_inserter(v) ) , v.size() ) , 
-                        Equals(source.size())
-                      );
-            
-            AssertThat( std::equal( std::begin(v) , std::end(v) , std::begin(source) ) , Equals(true) );
-            
-            AssertThat(std::accumulate(std::begin(v) , std::end(v) , 0 , [](int x , int y){ return x + y;} ) , Equals(15));
-            
-            for( auto& e : v )
-                e *= e;
-            
-            AssertThat( ( std::transform( std::begin(v) , std::end(v) , std::begin(v) , [](int x){ return x - 1; } ) ,
-                          std::find( std::begin(v) , std::end(v) , 15 ) // 4*4 - 1
-                        ) , 
-                        Is().Not().EqualTo( std::end(v) )
-                      );
+            test_iterators_linear<Vector<int>>();
+        });
+        
+        it("Testing CVector::Iterator",[&]()
+        {
+            test_iterators_linear<CVector<int>>();
         });
         
         it("Testing SingleList::Iterator",[&]()
         {
-            SingleList<int> s;
-            
-            AssertThat( ( std::copy( std::begin(source) , std::end(source) , std::back_inserter(s) ) , s.size() ) , 
-                        Equals(source.size())
-                      );
-            
-            AssertThat( std::equal( std::begin(s) , std::end(s) , std::begin(source) ) , Equals(true) );
-            
-            AssertThat(std::accumulate(std::begin(s) , std::end(s) , 0 , [](int x , int y){ return x + y;} ) , Equals(15));
-            
-            for( auto& e : s )
-                e *= e;
-            
-            AssertThat( ( std::transform( std::begin(s) , std::end(s) , std::begin(s) , [](int x){ return x - 1; } ) ,
-                          std::find( std::begin(s) , std::end(s) , 15 ) // 4*4 - 1
-                        ) , 
-                        Is().Not().EqualTo( std::end(s) )
-                      );
+            test_iterators_linear<SingleList<int>>();
+        });
+        
+        it("Testing DoubleList::Iterator",[&]()
+        {
+            test_iterators_linear<DoubleList<int>>();
         });
     });
 });

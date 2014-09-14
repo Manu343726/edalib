@@ -20,4 +20,4 @@ install:
     - g++ -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit
 script:
     - cd test
-    - ./test --reporter=spec
+    - ./test --reporter=info

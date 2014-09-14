@@ -6,7 +6,7 @@
  * Estructura de Datos y Algoritmos
  * 
  * Copyright (C) 2014
- * Facultad de Informática, Universidad Complutense de Madrid
+ * Facultad de Informï¿½tica, Universidad Complutense de Madrid
  * This software is licensed under the Simplified BSD licence:
  *    (see the LICENSE file or
  *     visit opensource.org/licenses/BSD-3-Clause)
@@ -89,5 +89,16 @@ struct Set {
     /// Set::M is a TreeMap-backed set, and is always ordered
     typedef BaseSet<KeyType, TreeMap<KeyType, EmptyClass> > T;    
 };
+
+#if __cplusplus >= 201103L //C++11
+
+template<typename K>
+using ordered_set = typename Set<K>::T;
+
+template<typename K>
+using unordered_set = typename Set<K>::H;
+
+
+#endif //C++11
 
 #endif // __SET_H

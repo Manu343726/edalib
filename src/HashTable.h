@@ -17,6 +17,7 @@
 
 #include "MapEntry.h"
 #include "Util.h"
+#include "iterator_adapters.hpp"
 
 DECLARE_EXCEPTION(HashTableNoSuchElement)
 
@@ -60,7 +61,7 @@ std::size_t hash(const KeyType& key) {
  * @author mfreire
  */
 template <class KeyType, class ValueType>
-class HashTable {
+class HashTable : public util::container_traits<ValueType> {
     typedef MapEntry<KeyType, ValueType> Entry;
     typedef DoubleList<Entry> Bin;
     typedef typename Bin::Iterator BinIterator;
@@ -105,7 +106,7 @@ public:
         return _entryCount;
     }
 
-    class Iterator {
+    class Iterator : public util::edatocpp_iterator_adapter<Iterator,Entry> {
     public:
         void next() {
             _it.next();

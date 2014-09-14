@@ -16,6 +16,7 @@
 #define __DOUBLE_LIST_H
 
 #include "Util.h"
+#include "iterator_adapters.hpp"
 
 DECLARE_EXCEPTION(DoubleListEmpty)
 DECLARE_EXCEPTION(DoubleListOutOfBounds)
@@ -81,7 +82,7 @@ public:
         return _size;
     }
 
-    class Iterator : public std::iterator<std::bidirectional_iterator_tag,Type> {
+    class Iterator : public util::edatocpp_iterator_adapter<Iterator,Type> {
     public:
         void next() {
             _current = _current->_next;

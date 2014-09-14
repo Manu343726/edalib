@@ -32,7 +32,7 @@ DECLARE_EXCEPTION(TreeMapInvalidAccess)
  * @author mfreire
  */
 template <class KeyType, class ValueType>
-class TreeMap {
+class TreeMap : public util::container_traits<ValueType> {
     typedef MapEntry<KeyType, ValueType> Entry;
     typedef typename BinTree<Entry>::Node Node;
     
@@ -49,7 +49,7 @@ public:
         return _entryCount;
     }
 
-    class Iterator {
+    class Iterator : util::edatocpp_iterator_adapter<Iterator,Entry> {
     public:
         void next() {
             if ( ! _current) {

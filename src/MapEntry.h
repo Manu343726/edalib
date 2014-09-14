@@ -6,7 +6,7 @@
  * Estructura de Datos y Algoritmos
  *
  * Copyright (C) 2014
- * Facultad de Informática, Universidad Complutense de Madrid
+ * Facultad de Informï¿½tica, Universidad Complutense de Madrid
  * This software is licensed under the Simplified BSD licence:
  *    (see the LICENSE file or
  *    visit opensource.org/licenses/BSD-3-Clause)
@@ -26,7 +26,7 @@ struct MapEntry {
     ValueType _value; ///< value: associated with key
     
     MapEntry() {}
-    MapEntry(KeyType key, ValueType value)
+    MapEntry( const KeyType& key, const ValueType& value)
         : _key(key), _value(value) {}
 
     // for iostream output
