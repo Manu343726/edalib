@@ -1,23 +1,38 @@
 
 language: cpp
 compiler:
-    - gcc
+  - gcc
+  - clang
 
 before_install:
-    #Update GCC please...
-    - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
+  # g++
+  - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
 
-    - sudo apt-get update -qq
-    
-    #Use recursive cloning, bandit has some submodules (Why its not the default option Travis???)
-    - git submodule update --init --recursive
+  # libc++
+  - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
+
+  - sudo apt-get update -qq
 
 install:
-    - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-    - if [ "$CXX" == "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
+  # g++4.8.1
+  - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+  - if [ "$CXX" == "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
+
+  # libc++
+  - if [ "$CXX" == "clang++" ]; then cwd=$(pwd); fi #PUSH
+  - if [ "$CXX" == "clang++" ]; then export CXXFLAGS="-std=c++0x -stdlib=libc++"; fi
+  - if [ "$CXX" == "clang++" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk libcxx; fi
+  - if [ "$CXX" == "clang++" ]; then cd libcxx/lib && bash buildit; fi
+  - if [ "$CXX" == "clang++" ]; then sudo cp ./libc++.so.1.0 /usr/lib/; fi
+  - if [ "$CXX" == "clang++" ]; then sudo mkdir /usr/include/c++/v1; fi
+  - if [ "$CXX" == "clang++" ]; then cd .. && sudo cp -r include/* /usr/include/c++/v1/; fi
+  - if [ "$CXX" == "clang++" ]; then cd /usr/lib && sudo ln -sf libc++.so.1.0 libc++.so; fi
+  - if [ "$CXX" == "clang++" ]; then sudo ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi #POP
     
-    - g++ --version
-    - g++ -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit
+    - $CXX --version
+    - if [ "$CXX" == "g++"     ]; then g++     -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit; fi
+    - if [ "$CXX" == "clang++" ]; then clang++ -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit -stdlib=libc++ -lc++abi; fi
+    
     - cd test
 script:
     - ./test --reporter=info
