@@ -215,11 +215,11 @@ public:
     /** */
     void diagnose(std::ostream &out=std::cout) {
         std::size_t depth = 0, max = 0;
-        ulong totalDepth = 0;
+        std::size_t totalDepth = 0;
         _diagnose(_t._root, depth, max, totalDepth);
         float avg = ( 1.0 / _entryCount) *  totalDepth;     
         std::size_t roundedAvg = (int)avg;
-        ulong maxForDepth = 0;
+        std::size_t maxForDepth = 0;
         for (std::size_t i=0; i<roundedAvg; i++) {
             maxForDepth += (1<<i);
         }
@@ -234,7 +234,7 @@ private:
     /**
      * Calculates average path-length stats for the tree
      */
-    static void _diagnose(Node *n, std::size_t depth, std::size_t &max, ulong &total) {
+    static void _diagnose(Node *n, std::size_t depth, std::size_t &max, std::size_t &total) {
         if (n) {
             depth ++;
             total += depth;

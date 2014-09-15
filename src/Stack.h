@@ -48,7 +48,7 @@ public:
     }
 
     /**  */    
-    uint size() const {
+    std::size_t size() const {
         return _v.size();
     }
 };
