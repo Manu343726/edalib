@@ -46,7 +46,7 @@ class BaseSet {
 public:
 
     /** */
-    typedef typename Container::Iterator Iterator;    
+    typedef typename Container<KeyType,EmptyClass>::Iterator Iterator;    
     
     /**  */
     Iterator begin() const {

@@ -24,7 +24,7 @@
  * 
  * @author mfreire
  */
-template <class Type, template<typename> class Container>
+template <class Type, template<typename> class Container = Vector>
 class Stack {
 
     /** */

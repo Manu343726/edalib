@@ -42,7 +42,7 @@ class BaseMap{
 public:
 
     /** */
-    typedef typename Container::Iterator Iterator;
+    typedef typename Container<KeyType,ValueType>::Iterator Iterator;
     
     /**  */
     Iterator begin() const {

@@ -1,6 +1,9 @@
 
 
+#ifndef CONTAINER_ADAPTERS_HPP
+#define CONTAINER_ADAPTERS_HPP
 
+#include "iterator_adapters.hpp"
 
 template<typename C>
 struct container_traits;
@@ -18,127 +21,147 @@ struct asociative_container_tag{};
  *   template parameter.
  */
 
+//Ugly macros to make the code much more readable for non-C++ers
+#define LINEAR_CONTAINER template<typename> class
+#define CONTAINER_ADAPTER template<typename,LINEAR_CONTAINER> class
+#define ASSOCIATIVE_CONTAINER template<typename,typename,LINEAR_CONTAINER> class
 
-template<template<typename> class C , typename T>
+
+template<LINEAR_CONTAINER C , typename T>
 struct container_traits<C<T>>
 {
-	typedef linear_container_tag container_cathegory;
+    typedef linear_container_tag container_category;
 
-	typedef T value_type;
+    typedef T value_type;
 };
 
-template<template<typename,template<typename>class> class A , template<typename> class C , typename T>
-struct container_traits<A<T,C>>
+template<CONTAINER_ADAPTER A , LINEAR_CONTAINER C , typename T>
+struct container_traits<A<T, C>>
 {
-	typedef container_adapter_tag container_cathegory;
+    typedef container_adapter_tag container_category;
 
-	typedef T value_type;
+    typedef T value_type;
 };
 
-template<template<typename,typename,template<typename>class> class C , template<typename> class UC , typename KEY , typename VALUE>
-struct container_traits<C<KEY,VALUE,UC>>
+template<ASSOCIATIVE_CONTAINER C , LINEAR_CONTAINER UC , typename KEY , typename VALUE>
+struct container_traits<C<KEY, VALUE, UC>>
 {
-	typedef asociative_container_tag container_cathegory;
+    typedef asociative_container_tag container_category;
 
-	typedef std::pair<const KEY,VALUE> value_type;
-	typedef KEY                        key_type;
-	typedef VALUE                      mapped_type;
-        typedef UC<value_type>             bucket_container;
+    typedef std::pair<const KEY, VALUE> value_type;
+    typedef KEY                        key_type;
+    typedef VALUE                      mapped_type;
+    typedef UC<value_type>             bucket_container;
 };
 
 
 
 
 template<typename C>
-struct iterator_traits
+struct edatocpp_iterator_traits
 {
-	typedef typename C::Iterator java_iterator;
-	typedef typename util::iterator_cathegory<java_iterator>::type iterator_cathegory;
+    typedef typename C::Iterator java_iterator;
+    typedef typename util::eda_iterator_category<java_iterator>::type iterator_category;
 };
-
 
 
 template<typename C>
-struct edatocpp_container_adapter : public C , public iterator_traits<C> , public container_traits<C>
+struct edatocpp_container_adapter : public C , public container_traits<C>
 {
-	using C::C;
+    using C::C;
 
-	typedef C edalib_container;
-	typedef iterator_traits<C> iterator_traits;
-	typedef container_traits<C> container_traits;
-
-	struct iterator : public iterator_traits::java_iterator
-	{
-		typedef typename iterator_traits::java_iterator java_iterator;
-
-		using java_iterator::java_iterator;
+    typedef C edalib_container;
+    typedef edatocpp_iterator_traits<C> iterator_traits;
+    typedef container_traits<C> container_traits;
+    
 
 
+    struct iterator : public iterator_traits::java_iterator
+    {  
+        typedef typename iterator_traits::java_iterator java_iterator;
 
-		const typename container_traits::value_type& operator*() const
-		{
-			return java_iterator::elem();
-		}
+        using java_iterator::java_iterator;
+        
+        iterator() = default;
+        
+        iterator( const java_iterator& j ) : java_iterator{j}
+        {}
 
-		typename container_traits::value_type& operator*()
-		{
-			return java_iterator::elem();
-		}
+        const typename container_traits::value_type& operator*( ) const
+        {
+            return java_iterator::elem( );
+        }
 
-		iterator& operator++()
-		{
-			java_iterator::next();
-			return *this;
-		}
+        typename container_traits::value_type& operator*( )
+        {
+            return java_iterator::elem( );
+        }
 
-		iterator operator++(int)
-		{
-			iterator cpy{*this};
-			++(*this);
-			return cpy;
-		}
+        iterator& operator++( )
+        {
+            java_iterator::next( );
+            return *this;
+        }
 
-		template<typename SFINAE_FLAG = typename iterator_traits::iterator_cathegory,
-				 typename = typename std::enable_if<std::is_same<SFINAE_FLAG,std::bidirectional_iterator_tag>::value>::type
-				>
-		iterator& operator--()
-		{
-			java_iterator::prev();
-			return *this;
-		}
+        iterator operator++(int)
+        {
+            iterator cpy{ *this };
+            ++( *this );
+            return cpy;
+        }
+        
+        //SFINAE: Welcome to C++ type-based conditional code generation
 
-		template<typename SFINAE_FLAG = typename iterator_traits::iterator_cathegory,
-				 typename = typename std::enable_if<std::is_same<SFINAE_FLAG,std::bidirectional_iterator_tag>::value>::type
-				>
-		iterator operator--(int)
-		{
-			iterator cpy{*this};
-			--(*this);
-			return cpy;
-		}
-	};
+        template<typename SFINAE_FLAG = typename iterator_traits::iterator_category,
+                 typename = typename std::enable_if<std::is_same<SFINAE_FLAG, std::bidirectional_iterator_tag>::value>::type
+                >
+        iterator& operator--( )
+        {
+            java_iterator::prev( );
+            return *this;
+        }
 
-	typedef iterator const_iterator;
+        template<typename SFINAE_FLAG = typename iterator_traits::iterator_category,
+                 typename = typename std::enable_if<std::is_same<SFINAE_FLAG, std::bidirectional_iterator_tag>::value>::type
+                >
+        iterator operator--(int)
+        {
+            iterator cpy{ *this };
+            --( *this );
+            return cpy;
+        }
+        
+        //Standard types of the iterator interface:
+        typedef typename container_traits::value_type  value_type;
+        typedef typename container_traits::value_type& reference;
+        typedef typename container_traits::value_type* pointer;
+        typedef typename iterator_traits::iterator_category iterator_category;
+        typedef std::ptrdiff_t difference_type;
+    };
 
-	const_iterator begin() const
-	{
-		return const_iterator{ edalib_container::begin() };
-	}
+    typedef iterator const_iterator; //Having the same iterator both for mutable and const iterators is not a good idea, but it works...
 
-	iterator begin()
-	{
-		return iterator{ edalib_container::begin() };
-	}
-	
-	const_iterator end() const
-	{
-		return const_iterator{ edalib_container::end() };
-	}
-	
-	iterator end()
-	{
-		return iterator{ edalib_container::end() };
-	}
+    const_iterator begin( ) const
+    {
+        return const_iterator{ edalib_container::begin( ) };
+    }
+
+    iterator begin( )
+    {
+        return iterator{ edalib_container::begin( ) };
+    }
+
+    const_iterator end( ) const
+    {
+        return const_iterator{ edalib_container::end( ) };
+    }
+
+    iterator end( )
+    {
+        return iterator{ edalib_container::end( ) };
+    }
 
 };
+
+#endif /* CONTAINER_ADAPTERS_HPP */
 

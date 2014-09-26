@@ -15,9 +15,9 @@
 #ifndef __HASHTABLE_H
 #define __HASHTABLE_H
 
-#include "MapEntry.h"
 #include "Util.h"
-#include "iterator_adapters.hpp"
+
+#include <utility> //std::pair<const key,value> instead of custom pair class
 
 DECLARE_EXCEPTION(HashTableNoSuchElement)
 

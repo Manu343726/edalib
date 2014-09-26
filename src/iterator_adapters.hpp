@@ -20,7 +20,7 @@
  * First define some constraints:
  * 
  *  - Forward iterators and bidirectional iterators only. C++ defines some tags to identify such cathegories (std::forward_iterator_tag , etc). 
- *    Note that I discarded the random access iterator cathegory, so expressions like "it + 4" will not be supported.
+ *    Note that I discarded the random access iterator category, so expressions like "it + 4" will not be supported.
  * 
  *    In your Java-like iterators, I will suppose that:
  *        a) An iterator type with elem() (Read/Write, avoid set() please) and next() members only is a forward iterator.
@@ -36,8 +36,8 @@
 namespace util
 {
    /*
-    * First we need to get the cathegory of a given iterator type. For a C++ iterator its easy, since they follow the conventions and define an iterator_cathegory member type.
-    * For an EDA iterator, we need to do a little obscure template metaprogramming (Don't worry, leave this to the C++ freak) to figure out the cathegory from its members.
+    * First we need to get the category of a given iterator type. For a C++ iterator its easy, since they follow the conventions and define an iterator_category member type.
+    * For an EDA iterator, we need to do a little obscure template metaprogramming (Don't worry, leave this to the C++ freak) to figure out the category from its members.
     */
 
    /*
@@ -74,19 +74,19 @@ namespace util
             bool N = util::has_member_next<T>::value ,
             bool P = util::has_member_prev<T>::value
            >
-   struct eda_iterator_cathegory
+   struct eda_iterator_category
    {
-       static_assert( sizeof(T) != sizeof(T) , "Unknown EDA iterator cathegory" );
+       static_assert( sizeof(T) != sizeof(T) , "Unknown EDA iterator category" );
    };
    
    template<typename T>
-   struct eda_iterator_cathegory<T,true,true,false>
+   struct eda_iterator_category<T,true,true,false>
    {
        using type = std::forward_iterator_tag;
    };
    
    template<typename T>
-   struct eda_iterator_cathegory<T,true,true,true>
+   struct eda_iterator_category<T,true,true,true>
    {
        using type = std::bidirectional_iterator_tag;
    };
@@ -102,10 +102,10 @@ namespace util
    
    
    /*
-    * So we know the cathegory of an EDA iterator. Ok, now define the adapters, specialized for each cathegory
+    * So we know the category of an EDA iterator. Ok, now define the adapters, specialized for each category
     */
    
-   template<typename T , typename VT = util::eda_iterator_value_type<T> , typename C = typename util::eda_iterator_cathegory<T>::type>
+   template<typename T , typename VT = util::eda_iterator_value_type<T> , typename C = typename util::eda_iterator_category<T>::type>
    struct edatocpp_iterator_adapter;
    
    template<typename T , typename VT>

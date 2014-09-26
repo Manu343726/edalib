@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <numeric>
 
+#include "container_adapters.hpp"
+
 #include "DoubleList.h"
 #include "CVector.h"
 #include "Stack.h"
@@ -48,7 +50,7 @@ bool equal( const C1& c1 , const C2& c2 , C comparer = equal_comp{} )
 template<typename C>
 void test_iterators_linear()
 {
-    C c;
+    edatocpp_container_adapter<C> c;
     auto source = { 1 , 2 , 3 , 4 , 5 };
     
     it("std::copy() works",[&]()
@@ -116,21 +118,21 @@ void pop( C& container)
     container.pop();
 }
 
-template<typename... ARGS , typename T>
-void push( Deque<ARGS...>& d , const T& e )
+template<typename U , LINEAR_CONTAINER C , typename T>
+void push( Deque<U,C>& d , const T& e )
 {
     d.push_back( e );
 }
 
-template<typename... ARGS>
-void pop( Deque<ARGS...>& d )
+template<typename U , LINEAR_CONTAINER C>
+void pop( Deque<U,C>& d )
 {
     d.pop_front();
 }
 
-template<template<typename...> class CA , template<typename...> class C>
+template<CONTAINER_ADAPTER CA , LINEAR_CONTAINER C>
 void testContainerAdapter() {         
-    edatocpp_container_adapter<CA<int,C>> s, t;
+    CA<int,C> s, t;
     
     it("Is initialized correctly" , [&]()
     {

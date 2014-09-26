@@ -15,10 +15,11 @@
 #ifndef __TREEMAP_H
 #define __TREEMAP_H
 
-#include "MapEntry.h"
 #include "Util.h"
 #include "BinTree.h"
 #include "Stack.h"
+
+#include <utility> //std::pair<const key,value> instead of custom pair class
 
 DECLARE_EXCEPTION(TreeMapNoSuchElement)
 DECLARE_EXCEPTION(TreeMapInvalidAccess)
@@ -32,7 +33,7 @@ DECLARE_EXCEPTION(TreeMapInvalidAccess)
  * @author mfreire
  */
 template <class KeyType, class ValueType>
-class TreeMap : public util::container_traits<TreeMap<KeyType,ValueType>,ValueType> {
+class TreeMap{
 private:
     typedef std::pair<const KeyType, ValueType> Entry;
     typedef typename BinTree<Entry>::Node Node;
@@ -50,7 +51,7 @@ public:
         return _entryCount;
     }
 
-    class Iterator : util::edatocpp_iterator_adapter<Iterator,Entry> {
+    class Iterator{
     public:
         void next() {
             if ( ! _current) {
@@ -132,8 +133,6 @@ public:
             return n;
         }
     };
-    
-    ADD_ITERATOR_TRAITS()
     
     /** */
     const Iterator find(const KeyType& key) const {
