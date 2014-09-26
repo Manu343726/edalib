@@ -31,7 +31,8 @@ DECLARE_EXCEPTION(CVectorInvalidIndex)
  * @author mfreire
  */
 template <class Type>
-class CVector : public util::container_traits<CVector<Type>,Type> {
+class CVector
+{
 private:
     /// initial size to reserve for an empty vector
     static const std::size_t INITIAL_SIZE = 16;
@@ -114,7 +115,7 @@ public:
         return _used;
     }
     
-    class Iterator : public util::edatocpp_iterator_adapter<Iterator,Type> {
+    class Iterator{
     public:
         void next() {
             _pos = _cv->_inc(_pos);
@@ -147,8 +148,6 @@ public:
         Iterator(const CVector *cv, std::size_t pos)
             : _cv(cv), _pos(pos) {}
     };  
-    
-    ADD_ITERATOR_TRAITS()
     
     /** */
     const Iterator find(const Type& e) const {

@@ -35,7 +35,7 @@
  * @author mfreire
  */
 template <class Type>
-struct BinTree : public util::container_traits<BinTree<Type>,Type>{
+struct BinTree{
 private:
     /** */
     struct Node {

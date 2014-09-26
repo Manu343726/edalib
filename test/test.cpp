@@ -78,18 +78,18 @@ void test_iterators_linear()
 
 //C++11 features (Move semantics, initializer-lists, etc) tests:
 
-template<typename C>
+template<typename C , typename AC = edatocpp_container_adapter<C>>
 void test_cpp11_linear()
 {
-    C a = { 1 , 2 , 3 , 4 , 5  };
-    C b = { 6 , 7 , 8 , 9 , 10 };
+    AC a = { 1 , 2 , 3 , 4 , 5  };
+    AC b = { 6 , 7 , 8 , 9 , 10 };
     
     it("Is swappable using std::swap() (So move assigment works)",[&]()
     {
         std::swap(a,b);
         
-        AssertThat( a , Is().EqualToContainer(C{6,7,8,9,10}) );
-        AssertThat( b , Is().EqualToContainer(C{1,2,3,4,5 }) );
+        AssertThat( a , Is().EqualToContainer(AC{6,7,8,9,10}) );
+        AssertThat( b , Is().EqualToContainer(AC{1,2,3,4,5 }) );
     });
     
     it("Is move-assignable using initializer_lists directly",[&]()
@@ -97,8 +97,8 @@ void test_cpp11_linear()
         a = {1,2,3,4};
         b = {5,6,7,8};
 
-        AssertThat( a , Is().EqualToContainer(C{1,2,3,4}) );
-        AssertThat( b , Is().EqualToContainer(C{5,6,7,8}) );
+        AssertThat( a , Is().EqualToContainer(AC{1,2,3,4}) );
+        AssertThat( b , Is().EqualToContainer(AC{5,6,7,8}) );
     });
 }
     
@@ -130,7 +130,7 @@ void pop( Deque<ARGS...>& d )
 
 template<template<typename...> class CA , template<typename...> class C>
 void testContainerAdapter() {         
-    CA<int,C<int>> s, t;
+    edatocpp_container_adapter<CA<int,C>> s, t;
     
     it("Is initialized correctly" , [&]()
     {

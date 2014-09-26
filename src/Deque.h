@@ -23,11 +23,11 @@
  * 
  * @author mfreire
  */
-template <class Type, class Container = DoubleList<Type> >
+template <class Type, template<typename> class Container = DoubleList>
 class Deque {
 
     /** */
-    Container _v;
+    Container<Type> _v;
 
 public:
 

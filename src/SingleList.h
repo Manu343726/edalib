@@ -34,7 +34,7 @@ DECLARE_EXCEPTION(SingleListOutOfBounds)
  * @author mfreire
  */
 template <class Type>
-class SingleList : public util::container_traits<SingleList<Type>,Type> {
+class SingleList{
 private:
     /** */
     struct Node {
@@ -84,7 +84,7 @@ public:
         return _size;
     }
 
-    class Iterator : public util::edatocpp_iterator_adapter<Iterator,Type> {
+    class Iterator{
     public:
         void next() {
             _current = _current->_next;

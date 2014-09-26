@@ -31,7 +31,7 @@ DECLARE_EXCEPTION(DoubleListOutOfBounds)
  * @author mfreire
  */
 template <class Type>
-class DoubleList : public util::container_traits<DoubleList<Type>,Type> {
+class DoubleList{
 private:
     /** */
     struct Node {
@@ -82,7 +82,7 @@ public:
         return _size;
     }
 
-    class Iterator : public util::edatocpp_iterator_adapter<Iterator,Type> {
+    class Iterator{
     public:
         void next() {
             _current = _current->_next;
@@ -119,8 +119,6 @@ public:
         
         Iterator(Node *n) : _current(n) {}
     };
-    
-    ADD_ITERATOR_TRAITS()
     
     /** */
     const Iterator find(const Type& e) const {

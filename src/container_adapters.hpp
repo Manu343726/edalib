@@ -11,6 +11,14 @@ struct container_adapter_tag{};
 struct asociative_container_tag{};
 
 
+/*
+ * - A linear container is any template with one type parameter only.
+ * - A container adapter is any template with a type parameter and a linear container template parameter,
+ * - An asociative container is any template with two type parameters (key,value) and a linear container 
+ *   template parameter.
+ */
+
+
 template<template<typename> class C , typename T>
 struct container_traits<C<T>>
 {
@@ -20,7 +28,7 @@ struct container_traits<C<T>>
 };
 
 template<template<typename,template<typename>class> class A , template<typename> class C , typename T>
-struct container_traits<A<T,C<T>>>
+struct container_traits<A<T,C>>
 {
 	typedef container_adapter_tag container_cathegory;
 
@@ -28,13 +36,14 @@ struct container_traits<A<T,C<T>>>
 };
 
 template<template<typename,typename,template<typename>class> class C , template<typename> class UC , typename KEY , typename VALUE>
-struct container_traits<C<KEY,VALUE,UC<std::pair<const KEY,VALUE>>>>
+struct container_traits<C<KEY,VALUE,UC>>
 {
 	typedef asociative_container_tag container_cathegory;
 
 	typedef std::pair<const KEY,VALUE> value_type;
 	typedef KEY                        key_type;
 	typedef VALUE                      mapped_type;
+        typedef UC<value_type>             bucket_container;
 };
 
 

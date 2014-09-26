@@ -32,7 +32,7 @@ std::ostream& operator<<(std::ostream& out, const EmptyClass &e) {
  * 
  * @author mfreire
  */
-template <class KeyType, class Container>
+template <class KeyType, template<typename,typename> class Container>
 class BaseSet {
     
     /**
@@ -41,7 +41,7 @@ class BaseSet {
      * (find and contains, but does not need 'at'), removal by key (remove), 
      * insertion by key(insert), and size
      */
-    Container _m;
+    Container<KeyType,EmptyClass> _m;
 
 public:
 
@@ -85,9 +85,9 @@ public:
 template <class KeyType>
 struct Set {
     /// Set::H is a HashTable-backed set, and is not ordered
-    typedef BaseSet<KeyType, HashTable<KeyType, EmptyClass> > H;
+    typedef BaseSet<KeyType, HashTable> H;
     /// Set::M is a TreeMap-backed set, and is always ordered
-    typedef BaseSet<KeyType, TreeMap<KeyType, EmptyClass> > T;    
+    typedef BaseSet<KeyType, TreeMap> T;    
 };
 
 #if __cplusplus >= 201103L //C++11

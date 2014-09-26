@@ -6,7 +6,7 @@
  * Estructura de Datos y Algoritmos
  * 
  * Copyright (C) 2014
- * Facultad de Informática, Universidad Complutense de Madrid
+ * Facultad de Informï¿½tica, Universidad Complutense de Madrid
  * This software is licensed under the Simplified BSD licence:
  *    (see the LICENSE file or
  *     visit opensource.org/licenses/BSD-3-Clause)
@@ -24,11 +24,11 @@
  * 
  * @author mfreire
  */
-template <class Type, class Container = Vector<Type> >
+template <class Type, template<typename> class Container>
 class Stack {
 
     /** */
-    Container _v;
+    Container<Type> _v;
 
 public:
 

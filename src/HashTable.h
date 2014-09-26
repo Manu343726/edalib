@@ -61,9 +61,9 @@ std::size_t hash(const KeyType& key) {
  * @author mfreire
  */
 template <class KeyType, class ValueType>
-class HashTable : public util::container_traits<HashTable<KeyType,ValueType>,ValueType> {
+class HashTable{
 private:
-    typedef MapEntry<KeyType, ValueType> Entry;
+    typedef std::pair<KeyType, ValueType> Entry;
     typedef DoubleList<Entry> Bin;
     typedef typename Bin::Iterator BinIterator;
     
@@ -107,7 +107,7 @@ public:
         return _entryCount;
     }
 
-    class Iterator : public util::edatocpp_iterator_adapter<Iterator,Entry> {
+    class Iterator{
     public:
         void next() {
             _it.next();
@@ -119,11 +119,11 @@ public:
         }
         
         const ValueType& value() const {
-            return _it.elem()._value;
+            return _it.elem().second;
         }
         
         const KeyType& key() const {
-            return _it.elem()._key;
+            return _it.elem().first;
         }
         
         bool operator==(const Iterator &other) const {
@@ -186,7 +186,7 @@ public:
         if (it == bin.end()) {
             throw HashTableNoSuchElement("at");
         }
-        return it.elem()._value;
+        return it.elem().second;
     }
     
     /** */
@@ -263,7 +263,7 @@ private:
     
     BinIterator _findIn(const Bin& bin, const KeyType& key) const {
         for (BinIterator it=bin.begin(); it!=bin.end(); it.next()) {
-            if (it.elem()._key == key) {
+            if (it.elem().first == key) {
                 return it;
             }
         }
@@ -281,7 +281,7 @@ private:
         _entryCount = 0;
         while (allEntries.size()) {
             const Entry& entry = allEntries.back();            
-            Bin& bin  = _bins[_binFor(entry._key)];
+            Bin& bin  = _bins[_binFor(entry.first)];
             allEntries.moveBackTo(bin);
             _entryCount ++;
         }

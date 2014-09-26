@@ -28,8 +28,8 @@
  * 
  * @author mfreire
  */
-template <class KeyType, class ValueType, class Container>
-class BaseMap : public util::container_traits<BaseMap<KeyType,ValueType,Container>,ValueType> {
+template <class KeyType, class ValueType, template<typename,typename> class Container>
+class BaseMap{
     
     /**
      * Internal associative container.
@@ -37,7 +37,7 @@ class BaseMap : public util::container_traits<BaseMap<KeyType,ValueType,Containe
      * (find, at, contains), removal by key (remove), insertion by key(insert),
      * and size
      */
-    Container _m; 
+    Container<KeyType,ValueType> _m; 
     
 public:
 
@@ -91,9 +91,9 @@ public:
 template <class KeyType, class ValueType>
 struct Map {
     /// Map::H is a HashTable-backed set, and is not ordered
-    typedef BaseMap<KeyType, ValueType, HashTable<KeyType, ValueType> > H;
+    typedef BaseMap<KeyType, ValueType, HashTable> H;
     /// Map::M is a TreeMap-backed set, and is always ordered
-    typedef BaseMap<KeyType, ValueType, TreeMap<KeyType, ValueType> > T;    
+    typedef BaseMap<KeyType, ValueType, TreeMap> T;    
 };
 
 #endif // __MAP_H

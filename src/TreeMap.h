@@ -34,7 +34,7 @@ DECLARE_EXCEPTION(TreeMapInvalidAccess)
 template <class KeyType, class ValueType>
 class TreeMap : public util::container_traits<TreeMap<KeyType,ValueType>,ValueType> {
 private:
-    typedef MapEntry<KeyType, ValueType> Entry;
+    typedef std::pair<const KeyType, ValueType> Entry;
     typedef typename BinTree<Entry>::Node Node;
     
     BinTree<Entry> _t; ///< sorted binary tree for key-value entries
@@ -70,11 +70,11 @@ public:
         }
         
         const ValueType& value() const {
-            return _current->_elem._value;
+            return _current->_elem.second;
         }
         
         const KeyType& key() const {
-            return _current->_elem._key;
+            return _current->_elem.first;
         }
         
         bool operator==(const Iterator &other) const {
@@ -107,7 +107,7 @@ public:
             Node *n = start;
             bool found = false;
             while (n && ! found) {
-                const KeyType& nodeKey = n->_elem._key;
+                const KeyType& nodeKey = n->_elem.first;
                 if (nodeKey == key) {
                     found = true;
                 } else {
@@ -158,7 +158,7 @@ public:
         if ( ! n) {
             throw TreeMapNoSuchElement("at");
         }
-        return n->_elem._value;
+        return n->_elem.second;
     }
     
     /** */
@@ -169,7 +169,7 @@ public:
     /** */
     void insert(const KeyType& key, const ValueType& value) {
         if ( ! _t._root) {
-            _t._root = _t.createNode(Entry(key, value));
+            _t._root = _t.createNode(std::make_pair(key, value));
             _entryCount ++;            
         } else {
             Node *p = _t._root;
@@ -177,13 +177,13 @@ public:
             Node *n = _nodeFor(key, p, leftChild);
             if ( ! n) {
                 if (leftChild) {
-                    p->_left = _t.createNode(Entry(key, value));
+                    p->_left = _t.createNode(std::make_pair(key, value));
                 } else {
-                    p->_right = _t.createNode(Entry(key, value));
+                    p->_right = _t.createNode(std::make_pair(key, value));
                 }                    
                 _entryCount ++;
             } else {
-                n->_elem._value = value;
+                n->_elem.second = value;
             }
         }
     }
@@ -300,7 +300,7 @@ private:
     static Node *_nodeFor(const KeyType& key, Node*& parent, bool &left) {
         Node *n = parent;
         while (n) {
-            const KeyType& nodeKey = n->_elem._key;
+            const KeyType& nodeKey = n->_elem.first;
             if (nodeKey == key) {
                 return n;
             } else {

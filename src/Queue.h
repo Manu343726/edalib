@@ -24,11 +24,11 @@
  * 
  * @author mfreire
  */
-template <class Type, class Container = SingleList<Type> >
-class Queue : public util::container_traits<Queue<Type,Container>,Type> {
+template <class Type, template<typename> class Container = SingleList>
+class Queue{
 
     /** */
-    Container _v;
+    Container<Type> _v;
 
 public:
 
