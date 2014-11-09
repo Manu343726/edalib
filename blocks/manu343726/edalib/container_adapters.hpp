@@ -4,6 +4,7 @@
 #define CONTAINER_ADAPTERS_HPP
 
 #include "iterator_adapters.hpp"
+#include "Util.h"
 
 template<typename C>
 struct container_traits;
@@ -68,24 +69,21 @@ struct edatocpp_iterator_traits
 template<typename C>
 struct edatocpp_container_adapter : public C , public container_traits<C>
 {
-    using C::C;
-
     typedef C edalib_container;
     typedef edatocpp_iterator_traits<C> iterator_traits;
     typedef container_traits<C> container_traits;
     
+	INHERIT_CTORS(edatocpp_container_adapter, C)
 
+	template<typename T>
+	edatocpp_container_adapter(const std::initializer_list<T>& i) : C{ i }
+	{}
 
     struct iterator : public iterator_traits::java_iterator
     {  
         typedef typename iterator_traits::java_iterator java_iterator;
 
-        using java_iterator::java_iterator;
-        
-        iterator() = default;
-        
-        iterator( const java_iterator& j ) : java_iterator{j}
-        {}
+		INHERIT_CTORS(iterator,java_iterator)
 
         const typename container_traits::value_type& operator*( ) const
         {
@@ -139,7 +137,7 @@ struct edatocpp_container_adapter : public C , public container_traits<C>
         typedef std::ptrdiff_t difference_type;
     };
 
-    typedef iterator const_iterator; //Having the same iterator both for mutable and const iterators is not a good idea, but it works...
+    using const_iterator = iterator; //Having the same iterator both for mutable and const iterators is not a good idea, but it works...
 
     const_iterator begin( ) const
     {

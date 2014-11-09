@@ -4,19 +4,19 @@
 #include <cstdlib>
 #include <numeric>
 
-#include "container_adapters.hpp"
+#include <manu343726/edalib/container_adapters.hpp>
 
-#include "DoubleList.h"
-#include "CVector.h"
-#include "Stack.h"
-#include "Queue.h"
-#include "Deque.h"
-#include "HashTable.h"
-#include "Map.h"
-#include "Set.h"
-#include "BinTree.h"
+#include <manu343726/edalib/DoubleList.h>
+#include <manu343726/edalib/CVector.h>
+#include <manu343726/edalib/Stack.h>
+#include <manu343726/edalib/Queue.h>
+#include <manu343726/edalib/Deque.h>
+#include <manu343726/edalib/HashTable.h>
+#include <manu343726/edalib/Map.h>
+#include <manu343726/edalib/Set.h>
+#include <manu343726/edalib/BinTree.h>
 
-#include "bandit/bandit.h"
+#include <manu343726/bandit/bandit.h>
 
 using namespace bandit;
 
@@ -83,24 +83,24 @@ void test_iterators_linear()
 template<typename C , typename AC = edatocpp_container_adapter<C>>
 void test_cpp11_linear()
 {
-    AC a = { 1 , 2 , 3 , 4 , 5  };
-    AC b = { 6 , 7 , 8 , 9 , 10 };
+	AC a = { 1, 2, 3, 4, 5 };
+	AC b = { 6, 7, 8, 9, 10 };
     
     it("Is swappable using std::swap() (So move assigment works)",[&]()
     {
         std::swap(a,b);
         
-        AssertThat( a , Is().EqualToContainer(AC{6,7,8,9,10}) );
-        AssertThat( b , Is().EqualToContainer(AC{1,2,3,4,5 }) );
+		AssertThat(a, Is().EqualToContainer(AC{ 6, 7, 8, 9, 10 }));
+		AssertThat(b, Is().EqualToContainer(AC{ 1, 2, 3, 4, 5 }));
     });
     
-    it("Is move-assignable using initializer_lists directly",[&]()
-    {
-        a = {1,2,3,4};
-        b = {5,6,7,8};
+	it("Is move-assignable using initializer_lists directly", [&]()
+	{
+		a = { 1, 2, 3, 4 };
+		b = { 5, 6, 7, 8 };
 
-        AssertThat( a , Is().EqualToContainer(AC{1,2,3,4}) );
-        AssertThat( b , Is().EqualToContainer(AC{5,6,7,8}) );
+		AssertThat(a, Is().EqualToContainer(AC{ 1, 2, 3, 4 }));
+		AssertThat(b, Is().EqualToContainer(AC{ 5, 6, 7, 8 }));
     });
 }
     

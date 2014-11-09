@@ -210,7 +210,7 @@ public:
         if (_used == 0) {
             throw VectorInvalidIndex("pop_front");
         }
-        for (int i=0; i<=_used; i++) {
+        for (std::size_t i=0; i<=_used; i++) {
             _v[i] = _v[i+1];
         }
         _used --;

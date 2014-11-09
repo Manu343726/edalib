@@ -1,0 +1,40 @@
+
+
+#include <tuple>
+
+
+template<typename Key , typename Value = Key>
+using bucket = std::pair<Key,Value>;
+
+
+
+template<typename Key , typename Value , 
+         typename InsertPolicy , typename ErasePolicy>
+class binary_tree
+{
+
+private:
+	struct node
+	{
+		std::shared_ptr<node> right, left;
+		bucket<Key,Value> bucket;
+
+		const Key& key() const
+		{
+			return bucket.first;
+		}
+
+		const Value& value() const
+		{
+			return bucket.second;
+		}
+
+		Value& value() const
+		{
+			return bucket.second;
+		}
+	};
+
+	InsertPolicy _insert;
+	ErasePolicy  _erase;
+};

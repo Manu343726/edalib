@@ -1,43 +1,42 @@
-
 language: cpp
 compiler:
-  - gcc
-  - clang
-
+- gcc
+- clang
+env:
+  secure: dlHkt+sJoyXjT0ZwqFZzKj/0Dw98xR+OOsECi5K5buggp8RUuzWpX4cpTNvvFvOxxUrMvsjdV1HFb/k8Q76+P5tA/gKt9r6A0efZNkj3YI1NcWLe/XFAQLRb595/V15xvRpEP2d+H+g7BusGs6kwITFZOugcZvUpHITSX+uUxCQ=
+matrix:
+- BUILD_TYPE=Debug
+- BUILD_TYPE=Release
 before_install:
-  # g++
-  - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
-
-  # libc++
-  - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
-
-  - sudo apt-get update -qq
-  
-  
-  #Use recursive cloning, bandit has some submodules (Why this is not the default option Travis???)                                                                                                                                          
-  - git submodule update --init --recursive 
-
+- if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
+  fi
+- if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm;
+  fi
+- sudo apt-get update -qq
+- git submodule update --init --recursive
 install:
-  # g++4.8.1
-  - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-  - if [ "$CXX" == "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
-
-  # libc++
-  - if [ "$CXX" == "clang++" ]; then cwd=$(pwd); fi #PUSH
-  - if [ "$CXX" == "clang++" ]; then export CXXFLAGS="-std=c++0x -stdlib=libc++"; fi
-  - if [ "$CXX" == "clang++" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk libcxx; fi
-  - if [ "$CXX" == "clang++" ]; then cd libcxx/lib && bash buildit; fi
-  - if [ "$CXX" == "clang++" ]; then sudo cp ./libc++.so.1.0 /usr/lib/; fi
-  - if [ "$CXX" == "clang++" ]; then sudo mkdir /usr/include/c++/v1; fi
-  - if [ "$CXX" == "clang++" ]; then cd .. && sudo cp -r include/* /usr/include/c++/v1/; fi
-  - if [ "$CXX" == "clang++" ]; then cd /usr/lib && sudo ln -sf libc++.so.1.0 libc++.so; fi
-  - if [ "$CXX" == "clang++" ]; then sudo ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd; fi #POP
-    
-  - $CXX --version
-    
-  - if [ "$CXX" == "g++" ]; then g++ -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit; fi
-  - if [ "$CXX" == "clang++" ]; then clang++ -std=c++11 test/test.cpp -o test/test -Wall -pedantic -Isrc -Ibandit; fi
-    
-  - cd test
+- if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.9; fi
+- if [ "$CXX" == "g++" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 50; fi
+- if [ "$CXX" == "clang++" ]; then cwd=$(pwd); fi
+- if [ "$CXX" == "clang++" ]; then export CXXFLAGS="-std=c++0x -stdlib=libc++"; fi
+- if [ "$CXX" == "clang++" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk
+  libcxx; fi
+- if [ "$CXX" == "clang++" ]; then cd libcxx/lib && bash buildit; fi
+- if [ "$CXX" == "clang++" ]; then sudo cp ./libc++.so.1.0 /usr/lib/; fi
+- if [ "$CXX" == "clang++" ]; then sudo mkdir /usr/include/c++/v1; fi
+- if [ "$CXX" == "clang++" ]; then cd .. && sudo cp -r include/* /usr/include/c++/v1/;
+  fi
+- if [ "$CXX" == "clang++" ]; then cd /usr/lib && sudo ln -sf libc++.so.1.0 libc++.so;
+  fi
+- if [ "$CXX" == "clang++" ]; then sudo ln -sf libc++.so.1.0 libc++.so.1 && cd $cwd;
+  fi
+- wget http://apt.biicode.com/install.sh && chmod +x install.sh && ./install.sh
+- bii setup:cpp
+- bii --version
+- bii cpp:configure -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$(which $CXX) -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 script:
-    - ./test --reporter=info
+- "./test --reporter=info"
+after_success:
+- bii user manu343726 -p $BIICODE_PASSWORD
+- bii publish manu343726/edalib --tag STABLE
+- bii publish manu343726/edalib-tests --tag STABLE
