@@ -3,9 +3,10 @@ compiler:
 - gcc
 - clang
 env:
-  secure: dlHkt+sJoyXjT0ZwqFZzKj/0Dw98xR+OOsECi5K5buggp8RUuzWpX4cpTNvvFvOxxUrMvsjdV1HFb/k8Q76+P5tA/gKt9r6A0efZNkj3YI1NcWLe/XFAQLRb595/V15xvRpEP2d+H+g7BusGs6kwITFZOugcZvUpHITSX+uUxCQ=
 - BUILD_TYPE=Debug
 - BUILD_TYPE=Release
+env:
+  secure: dlHkt+sJoyXjT0ZwqFZzKj/0Dw98xR+OOsECi5K5buggp8RUuzWpX4cpTNvvFvOxxUrMvsjdV1HFb/k8Q76+P5tA/gKt9r6A0efZNkj3YI1NcWLe/XFAQLRb595/V15xvRpEP2d+H+g7BusGs6kwITFZOugcZvUpHITSX+uUxCQ=
 before_install:
 - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
   fi
