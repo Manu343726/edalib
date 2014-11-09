@@ -33,7 +33,7 @@ install:
 - wget http://apt.biicode.com/install.sh && chmod +x install.sh && ./install.sh
 - bii setup:cpp
 - bii --version
-- bii cpp:configure -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$(which $CXX)   -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
+- bii cpp:configure -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$(which $CXX)
 script:
 - "./test --reporter=info"
 after_success:
