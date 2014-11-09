@@ -4,7 +4,6 @@ compiler:
 - clang
 env:
   secure: dlHkt+sJoyXjT0ZwqFZzKj/0Dw98xR+OOsECi5K5buggp8RUuzWpX4cpTNvvFvOxxUrMvsjdV1HFb/k8Q76+P5tA/gKt9r6A0efZNkj3YI1NcWLe/XFAQLRb595/V15xvRpEP2d+H+g7BusGs6kwITFZOugcZvUpHITSX+uUxCQ=
-matrix:
 - BUILD_TYPE=Debug
 - BUILD_TYPE=Release
 before_install:
