@@ -4,7 +4,7 @@ compiler:
 - clang
 env:
   global:
-    - GCC_VERSION="4.8"
+    - GCC_VERSION="4.9"
     - secure: dlHkt+sJoyXjT0ZwqFZzKj/0Dw98xR+OOsECi5K5buggp8RUuzWpX4cpTNvvFvOxxUrMvsjdV1HFb/k8Q76+P5tA/gKt9r6A0efZNkj3YI1NcWLe/XFAQLRb595/V15xvRpEP2d+H+g7BusGs6kwITFZOugcZvUpHITSX+uUxCQ=
 matrix:
   - BUILD_TYPE=Debug
@@ -30,10 +30,10 @@ install:
   - wget http://apt.biicode.com/install.sh && chmod +x install.sh && ./install.sh
   - bii setup:cpp
   - bii --version
+script:
   - bii cpp:configure -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$(which $CXX)
   - bii cpp:build
-script:
-  - ".bin/manu343726_edalib-tests_test --reporter=info"
+  - "./bin/manu343726_edalib-tests_test --reporter=info"
 after_success:
   #- bii user manu343726 -p $BIICODE_PASSWORD
   #- bii publish manu343726/edalib --tag STABLE
