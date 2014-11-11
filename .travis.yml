@@ -33,7 +33,7 @@ install:
 script:
   - bii cpp:configure -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$(which $CXX)
   - bii cpp:build
-  - ".bin/manu343726_edalib-tests_test --reporter=info"
+  - "./bin/manu343726_edalib-tests_test --reporter=info"
 after_success:
   - bii user manu343726 -p $BIICODE_PASSWORD
   - bii publish manu343726/edalib --tag STABLE
