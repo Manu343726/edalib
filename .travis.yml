@@ -17,7 +17,8 @@ before_install:
   - git submodule update --init --recursive
 install:
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq "g++-${GCC_VERSION}"; fi
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi- if [ "$CXX" == "clang++" ]; then cwd=$(pwd); fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
+  - if [ "$CXX" == "clang++" ]; then cwd=$(pwd); fi
   - if [ "$CXX" == "clang++" ]; then export CXXFLAGS="-std=c++0x -stdlib=libc++"; fi
   - if [ "$CXX" == "clang++" ]; then svn co --quiet http://llvm.org/svn/llvm-project/libcxx/trunk libcxx; fi
   - if [ "$CXX" == "clang++" ]; then cd libcxx/lib && bash buildit; fi
