@@ -43,6 +43,7 @@ script:
 - "./bin/manu343726_edalib-tests_test --reporter=info"
 after_success:
 - git reset --hard HEAD
+- bii user manu343726
 deploy:
   provider: biicode
   user: Manu343726
