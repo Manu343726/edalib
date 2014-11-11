@@ -6,6 +6,8 @@
 #include "iterator_adapters.hpp"
 #include "Util.h"
 
+#include <manu343726/turbo_core/turbo_core.hpp>
+
 template<typename C>
 struct container_traits;
 
@@ -70,34 +72,38 @@ template<typename C>
 struct edatocpp_container_adapter : public C , public container_traits<C>
 {
     typedef C edalib_container;
-    typedef edatocpp_iterator_traits<C> iterator_traits;
-    typedef container_traits<C> container_traits;
+    typedef edatocpp_iterator_traits<C> itraits;
+    typedef container_traits<C> ctraits;
     
-	INHERIT_CTORS(edatocpp_container_adapter, C)
+    INHERIT_CTORS(edatocpp_container_adapter,edalib_container)
+    
+    template<typename T>
+    edatocpp_container_adapter(const std::initializer_list<T>& i) : C{ i }
+    {}
+    
+#ifndef _MSC_VER
+    edatocpp_container_adapter() = default;
+#endif
 
-	template<typename T>
-	edatocpp_container_adapter(const std::initializer_list<T>& i) : C{ i }
-	{}
-
-    struct iterator : public iterator_traits::java_iterator
+    struct iterator : public itraits::java_iterator
     {  
-        typedef typename iterator_traits::java_iterator java_iterator;
+        using java_iterator = typename itraits::java_iterator;
+        
+        INHERIT_CTORS(iterator,java_iterator)
 
-		INHERIT_CTORS(iterator,java_iterator)
-
-        const typename container_traits::value_type& operator*( ) const
+        const typename ctraits::value_type& operator*( ) const
         {
-            return java_iterator::elem( );
+            return itraits::java_iterator::elem( );
         }
 
-        typename container_traits::value_type& operator*( )
+        typename ctraits::value_type& operator*( )
         {
-            return java_iterator::elem( );
+            return itraits::java_iterator::elem( );
         }
 
         iterator& operator++( )
         {
-            java_iterator::next( );
+            itraits::java_iterator::next( );
             return *this;
         }
 
@@ -110,16 +116,16 @@ struct edatocpp_container_adapter : public C , public container_traits<C>
         
         //SFINAE: Welcome to C++ type-based conditional code generation
 
-        template<typename SFINAE_FLAG = typename iterator_traits::iterator_category,
+        template<typename SFINAE_FLAG = typename itraits::iterator_category,
                  typename = typename std::enable_if<std::is_same<SFINAE_FLAG, std::bidirectional_iterator_tag>::value>::type
                 >
         iterator& operator--( )
         {
-            java_iterator::prev( );
+            itraits::java_iterator::prev( );
             return *this;
         }
 
-        template<typename SFINAE_FLAG = typename iterator_traits::iterator_category,
+        template<typename SFINAE_FLAG = typename itraits::iterator_category,
                  typename = typename std::enable_if<std::is_same<SFINAE_FLAG, std::bidirectional_iterator_tag>::value>::type
                 >
         iterator operator--(int)
@@ -130,10 +136,10 @@ struct edatocpp_container_adapter : public C , public container_traits<C>
         }
         
         //Standard types of the iterator interface:
-        typedef typename container_traits::value_type  value_type;
-        typedef typename container_traits::value_type& reference;
-        typedef typename container_traits::value_type* pointer;
-        typedef typename iterator_traits::iterator_category iterator_category;
+        typedef typename ctraits::value_type  value_type;
+        typedef typename ctraits::value_type& reference;
+        typedef typename ctraits::value_type* pointer;
+        typedef typename itraits::iterator_category iterator_category;
         typedef std::ptrdiff_t difference_type;
     };
 

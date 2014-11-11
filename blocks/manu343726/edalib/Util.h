@@ -23,14 +23,28 @@
 #include <iterator>
 #include <algorithm>
 
+//Some cool preprocessor metaprogramming.... 
+
+#define MACRO_ARGS_HEAD(head,...) head
+#define MACRO_ARGS_TAIL(head,...) __VA_ARGS__
+#define MACRO_ARGS_THIRD(first,second,third,...) third
+#define MACRO_EXPAND(x) x
+#define MACRO_CAT_IMPL(x,y) x##y
+#define MACRO_CAT(x,y) MACRO_CAT_IMPL(x,y)
+
+#define NAMESPACE_CAT_IMPL_EMPTY(x,n) x
+#define NAMESPACE_CAT_IMPL_NONEMPTY(x,n) n::x
+#define NAMESPACE_CAT_SELECT_OVERLOAD(...) MACRO_ARGS_THIRD(__VA_ARGS__,NAMESPACE_CAT_IMPL_NONEMPTY,NAMESPACE_CAT_IMPL_EMPTY)
+#define NAMESPACE_CAT(...) NAMESPACE_CAT_SELECT_OVERLOAD(__VA_ARGS__)(__VA_ARGS__)
+
 //Macro to inherit constructors from a base class. MSVC12 doesn't implement this feature yet,
 //so perfect forwarding to the base class is used instead. 
 //The third optional parameter of the macro is the namespace of the base class, 
 //to write the qualified name (See DECLARE_EXCEPTION() bellow for an example).
-#ifdef _MSC_VER
-#define INHERIT_CTORS(derived,base,...) template<typename... ARGS> derived(ARGS... args) : __VA_ARGS__##base{ std::forward<ARGS>(args)...} {}
+#if defined(_MSC_VER) || defined(__GNUC__) || defined(__llvm__)
+#define INHERIT_CTORS(derived,base) template<typename... ARGS> derived(ARGS... args) : base{ std::forward<ARGS>(args)...} {}
 #else
-#define INHERIT_CTORS(derived,base,...) using __VA_ARGS__##base::base;
+#define INHERIT_CTORS(derived,base) using base::base;
 #endif
 
 std::ostream& operator<<(std::ostream& out, const std::exception& e) {
@@ -40,9 +54,9 @@ std::ostream& operator<<(std::ostream& out, const std::exception& e) {
 /// Macro to create subclasses of the base exception.
 ///     use as: DECLARE_EXCEPTION(UniqueExceptionName)
 #define DECLARE_EXCEPTION(ExceptionSubclass) \
-class ExceptionSubclass : public std::logic_error { \
+class ExceptionSubclass : public std:: logic_error { \
 public: \
-	INHERIT_CTORS(ExceptionSubclass,logic_error,std::) \
+	INHERIT_CTORS(ExceptionSubclass,logic_error) \
 };
 
 /// Macro to constify an operation.
