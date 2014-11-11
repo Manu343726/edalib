@@ -36,6 +36,8 @@ install:
 - bii setup:cpp
 - bii --version
 script:
+- bii open manu343726/edalib-tests
+- bii find
 - bii cpp:configure -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$(which $CXX)
 - bii cpp:build
 - "./bin/manu343726_edalib-tests_test --reporter=info"
