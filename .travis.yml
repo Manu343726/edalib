@@ -43,5 +43,5 @@ script:
 - "./bin/manu343726_edalib-tests_test --reporter=info"
 
 - bii user manu343726 -p $BIICODE_PASSWORD
-- bii publish manu343726/manu343726/edalib --tag STABLE
+- bii publish manu343726/edalib --tag STABLE
 - bii publish manu343726/edalib-tests --tag STABLE
