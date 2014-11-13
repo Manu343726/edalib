@@ -58,6 +58,20 @@ ADD_BIICODE_TARGETS()
 #     ...
 # endif()
 
+if(DEFINED FIRST_FLAG)
+	message("FIRST FLAG OK")
+else()
+	message("FIRST FLAG NOT DEFINED!!!")
+endif()
+if(DEFINED SECOND_FLAG)
+	message("SECOND FLAG OK")
+else()
+	message("SECOND FLAG NOT DEFINED!!!")
+endif()
+
+
+
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_compile_options(${BII_LIB_TARGET} PUBLIC "/bigobj")
 else()
