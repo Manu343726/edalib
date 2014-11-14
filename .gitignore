@@ -27,3 +27,6 @@
 *.app
 /build/
 /test/*!.cpp
+
+# biicode project metadata
+/bii/
