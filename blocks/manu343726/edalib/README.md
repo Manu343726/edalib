@@ -43,15 +43,15 @@ All previous files ```#include``` [Util.h](https://github.com/Manu343726/edalib/
 
 ##### Other files
 
-* [test/test.cpp](https://github.com/Manu343726/edalib/blob/master/test/test.cpp): a set of unit tests, which is neither exhaustive nor particularly organized. Mostly for testing during development.
+* [manu343726/edalib-tests/test.cpp](https://github.com/Manu343726/edalib/blob/master/blocks/manu343726/edalib-tests/test.cpp): a set of unit tests, which is neither exhaustive nor particularly organized. Mostly for testing during development.
 * `.travis.yml`: TravisCI test enviroment config file. Runs the above tests when pushing to github, both compiling with Clang and GCC using multiple compilation settings. Also deploys biicode blocks.
 * LICENSE: the BSD 3-clause license, under which *edalib* is licensed.
 
 ##### Compiler support
 
-edalib its currently portable and works under the following compilers:
+edalib is currently portable and works under the following compilers:
 
- - GCC 4.9.1 (Windows MinGW, linux)
+ - GCC 4.9.1 (Windows MinGW, Linux)
  - Clang 3.4 (Linux, Mac OSX)
  - MSVC12 Visual Studio 2013 (Windows)
 
