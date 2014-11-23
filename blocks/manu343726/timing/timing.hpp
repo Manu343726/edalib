@@ -15,6 +15,9 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <stdexcept>
+
+#include <manu343726/portable_cpp/specifiers.hpp>
 
 /**
  * This class manages global timing, maintaining a registry with the different timing frames
@@ -49,7 +52,7 @@ public:
             finished = true;
         }
         
-        clock::time_point start() const noexcept
+        clock::time_point start() const NOEXCEPT
         {
             return start_time;
         }
