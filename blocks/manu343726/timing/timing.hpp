@@ -14,6 +14,7 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
+#include <numeric>
 
 /**
  * This class manages global timing, maintaining a registry with the different timing frames

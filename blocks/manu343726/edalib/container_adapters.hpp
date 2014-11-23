@@ -6,8 +6,6 @@
 #include "iterator_adapters.hpp"
 #include "Util.h"
 
-#include <manu343726/turbo_core/turbo_core.hpp>
-
 template<typename C>
 struct container_traits;
 

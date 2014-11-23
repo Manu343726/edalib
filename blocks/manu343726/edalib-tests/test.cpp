@@ -159,9 +159,7 @@ void testContainerAdapter() {
 }
 
 go_bandit([]()
-{
-    SCOPED_CLOCK
-    
+{   
     describe("Testing iterator adapters on linear containers" , []()
     {
         describe("Testing Vector::Iterator",[]()
@@ -272,5 +270,9 @@ int main(int argc , char* argv[]) {
     timing_manager::on_start(log_start_timing);
     timing_manager::on_finish(log_finish_timing);
     
-    return bandit::run(argc,argv);
+	return [=]()
+	{
+		SCOPED_CLOCK;
+		return bandit::run(argc, argv);
+	}();
 }
