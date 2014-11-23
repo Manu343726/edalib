@@ -18,6 +18,8 @@
 
 #include <manu343726/bandit/bandit.h>
 
+#include <manu343726/timing/timing.hpp>
+
 using namespace bandit;
 
 
@@ -131,7 +133,8 @@ void pop( Deque<U,C>& d )
 }
 
 template<CONTAINER_ADAPTER CA , LINEAR_CONTAINER C>
-void testContainerAdapter() {         
+void testContainerAdapter() { 
+    SCOPED_CLOCK
     CA<int,C> s, t;
     
     it("Is initialized correctly" , [&]()
@@ -157,6 +160,8 @@ void testContainerAdapter() {
 
 go_bandit([]()
 {
+    SCOPED_CLOCK
+    
     describe("Testing iterator adapters on linear containers" , []()
     {
         describe("Testing Vector::Iterator",[]()
@@ -251,7 +256,21 @@ go_bandit([]()
     });
 });
 
+void log_start_timing(const timing_manager::snapshot& snapshot)
+{
+    std::cout << ">>>>>>>>>>> Timing '" << snapshot.frame_function() << "' call. Started." << std::endl;
+}
+
+void log_finish_timing(const timing_manager::snapshot& snapshot)
+{
+    std::cout << "Finished timing '" << snapshot.frame_function() << "'" << std::endl
+              << "Total time elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(snapshot.elapsed()).count() << " ms" << std::endl
+              << "=============================================" << std::endl;
+}
 
 int main(int argc , char* argv[]) {
+    timing_manager::on_start(log_start_timing);
+    timing_manager::on_finish(log_finish_timing);
+    
     return bandit::run(argc,argv);
 }

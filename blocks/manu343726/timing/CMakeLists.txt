@@ -44,10 +44,12 @@ ADD_BIICODE_TARGETS()
 #            BEFORE calling ADD_BIICODE_TARGETS()
 #
 # Example: how to activate C++11. Uncomment one of this
-#     target_compile_options(${BII_LIB_TARGET} PUBLIC "-std=c++11") # Win, or linux if not gcc problems
-#     target_compile_options(${BII_LIB_TARGET} PUBLIC "-std=c++11"  "-stdlib=libc++") # MacOS
-#     target_compile_options(${BII_LIB_TARGET} PUBLIC "-std=c++11" "-Wl,--no-as-needed") # Ubuntu if gcc problems
+#     target_compile_options(${BII_LIB_TARGET} PUBLIC -std=c++11) # Win, or linux if not gcc problems
+#     target_compile_options(${BII_LIB_TARGET} PUBLIC -std=c++11  -stdlib=libc++) # MacOS
+#     target_compile_options(${BII_LIB_TARGET} PUBLIC -std=c++11 -Wl,--no-as-needed) # Ubuntu if gcc problems
 # with LLVM, you might need to link the target with "-lc++abi"
+#
+# Note: If you're in Ubuntu or Windows OS and you get an error with -std=c++11 option , try to use -std=c++0x instead.
 #
 # If you want your code to be portable and activate properly C++11, you have to handle it:
 # if(WIN32)
@@ -59,18 +61,19 @@ ADD_BIICODE_TARGETS()
 # endif()
 
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-	target_compile_options(${BII_LIB_TARGET} PUBLIC "/bigobj")
-else()
-	target_compile_options(${BII_LIB_TARGET} PUBLIC -std=c++11)
-	target_compile_options(${BII_LIB_TARGET} PUBLIC $<$<CONFIG:Debug>:-O0 -g3 -fno-inline>)
-	target_compile_options(${BII_LIB_TARGET} PUBLIC $<$<CONFIG:Release>:-O3 -g0>)
+if(NOT (CMAKE_CXX_COMPILER_ID MATCHES "MSVC"))
+    target_compile_options(${BII_LIB_TARGET} PUBLIC -std=c++11)
+    target_compile_options(${BII_LIB_TARGET} PUBLIC $<$<CONFIG:Debug>:-O0 -g3 -fno-inline>)
+    target_compile_options(${BII_LIB_TARGET} PUBLIC $<$<CONFIG:Release>:-O3 -g0>)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "clang")
-	target_compile_options(${BII_LIB_TARGET} PUBLIC -stdlib=libc++ )
-  	set_target_properties(${BII_LIB_TARGET} PROPERTIES LINK_FLAGS -lc++abi)
+option(TIMING "TIMING" ON)
+
+if(TIMING)
+    target_compile_options(${BII_LIB_TARGET} PUBLIC -DENABLE_TIMING)
 endif()
+
+
 
 ##################################################################################################
 #
