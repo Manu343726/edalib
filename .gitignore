@@ -30,3 +30,6 @@
 
 # biicode project metadata
 /bii/
+/build/
+/cmake/
+/bin/
