@@ -275,4 +275,6 @@ int main(int argc , char* argv[]) {
 		SCOPED_CLOCK;
 		return bandit::run(argc, argv);
 	}();
+
+	std::cout << "Total time elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(timing_manager::elapsed()).count() << " ms" << std::endl;
 }

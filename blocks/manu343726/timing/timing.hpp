@@ -174,7 +174,7 @@ public:
      * @param end last snapshot
      * @return a clock::time_point with the total elapsed time
      */
-    static clock::time_point elapsed( const snapshot& begin , const snapshot& end )
+    static clock::duration elapsed( const snapshot& begin , const snapshot& end )
     {
         auto bit = std::find(std::begin(timing_registry) , std::end(timing_registry) , begin );
         auto eit = std::find(std::begin(timing_registry) , std::end(timing_registry) , end );
@@ -187,7 +187,7 @@ public:
         
         //Note for Haskellers: std::accumulate() is foldl
         //eit++ since C++ ranges are [begin,end)
-        return std::accumulate( bit , eit++ , clock::time_point::min() , [](const clock::time_point& acc , const snapshot& current )
+        return std::accumulate( bit , eit++ , clock::duration::min() , [](const clock::duration& acc , const snapshot& current )
         {
            return acc + current.elapsed(); 
         });
@@ -197,7 +197,7 @@ public:
      * Returns the total registered elapsed time
      * @return 
      */
-    static clock::time_point elapsed()
+    static clock::duration elapsed()
     {
         if(timing_registry.empty()) throw std::logic_error{ "The registry is empty!" };
         
