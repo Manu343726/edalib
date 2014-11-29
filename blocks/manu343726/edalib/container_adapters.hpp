@@ -76,7 +76,7 @@ struct edatocpp_container_adapter : public C , public container_traits<C>
     INHERIT_CTORS(edatocpp_container_adapter,edalib_container)
     
     template<typename T>
-    edatocpp_container_adapter(const std::initializer_list<T>& i) : C{ i }
+    edatocpp_container_adapter(const std::initializer_list<T>& i) : C( i ) //Good old initialization to prevent C2797 on MSVC
     {}
     
 #ifndef _MSC_VER

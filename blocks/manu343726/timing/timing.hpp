@@ -39,9 +39,9 @@ public:
     {
     public:
         snapshot( const std::string& frame_function_name ) : 
-            stack_frame{ frame_function_name } ,
-            start_time{ clock::now() } , //Don't pass the time as parameter, compute here (Delay until the latest possible moment, to minimize bias)
-            finished{ false }
+            stack_frame( frame_function_name ) ,
+            start_time( clock::now() ) , //Don't pass the time as parameter, compute here (Delay until the latest possible moment, to minimize bias)
+            finished( false ) //Don't use uniform initialization to prevent MSVC C2797 error
         {}
             
         void finalize( const clock::time_point& finish ) //Since this is the finish, its the inverse of the ctor: Pass the time as param, to reduce bias (Compute the time in the first possible moment)
