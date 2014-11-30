@@ -15,6 +15,7 @@
 #include <manu343726/edalib/Map.h>
 #include <manu343726/edalib/Set.h>
 #include <manu343726/edalib/BinTree.h>
+#include <manu343726/edalib/FibHeap.hpp>
 
 #include <manu343726/bandit/bandit.h>
 
@@ -133,8 +134,7 @@ void pop( Deque<U,C>& d )
 }
 
 template<CONTAINER_ADAPTER CA , LINEAR_CONTAINER C>
-void testContainerAdapter() { 
-    SCOPED_CLOCK
+void testContainerAdapter() {
     CA<int,C> s, t;
     
     it("Is initialized correctly" , [&]()
@@ -156,6 +156,30 @@ void testContainerAdapter() {
         pop(s);
         AssertThat(s.size() , Is().EqualTo(1));
     });
+}
+
+template<typename T , template<typename...> class SIBLING_CONTAINER , std::size_t SIZE>
+void testFibHeap()
+{
+	SCOPED_CLOCK //Do timing
+
+	auto heap = make_fibheap<T, SIBLING_CONTAINER>([](const T& a, const T& b)
+	{
+		return a < b;
+	});
+
+	T begin = std::numeric_limits<T>::max();
+	T end = begin - (T)(SIZE);
+
+	it("Inserts correctly", [&]()
+	{
+		for (T i = std::numeric_limits<T>::max(); i >= end; --i)
+		{
+			heap.insert(i);
+
+			AssertThat(heap.min(), Is().EqualTo(i));
+		}
+	});
 }
 
 go_bandit([]()
@@ -252,6 +276,19 @@ go_bandit([]()
             });
         });
     });
+
+	describe("Testing Fibheap", []()
+	{
+		describe("Testing FibHeap<int,std::list>", []()
+		{
+			testFibHeap<int, std::list, 1000>();
+		});
+
+		describe("Testing FibHeap<int,std::vector>", []()
+		{
+			testFibHeap<int, std::vector, 1000>();
+		});
+	});
 });
 
 void log_start_timing(const timing_manager::snapshot& snapshot)
