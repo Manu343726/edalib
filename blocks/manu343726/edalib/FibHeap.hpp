@@ -42,7 +42,7 @@ public:
      * Constructs an empty heap. 
      */
 	 FibHeap(C comparer = C{}) :
-	 _compare{ comparer }
+	 _compare( comparer ) //I love uniform initialization until I hate uniform initilization... See https://travis-ci.org/Manu343726/edalib/builds/42541893
 	{
 		_min = std::end(_roots);
 	}
