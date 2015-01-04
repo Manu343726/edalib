@@ -36,6 +36,7 @@ install:
 - wget http://apt.biicode.com/install.sh && chmod +x install.sh && ./install.sh
 - bii setup:cpp
 - bii --version
+- bii init
 script:
 - bii find
 - bii cpp:configure -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$(which $CXX)
