@@ -4,11 +4,11 @@ compiler:
 - clang
 env:
   global:
-    - GCC_VERSION="4.9"
-    - secure: LFKc1bBqloBGsKfPmnuy3qmf4Jhl28YmOf4rQkOEFdoSUfJb9l3csE76VFn7rb8hI7tVUIkM2CfeiUtKAZj6wuH6p7VnskAUAX1quxsn6LGOVcFkVpCL0QPmwF1UFcO2W2uauAEfNjebaPJAJDu2d1bn/GQpp+vNwqaQMNXE61w=
+  - GCC_VERSION="4.9"
+  - secure: LFKc1bBqloBGsKfPmnuy3qmf4Jhl28YmOf4rQkOEFdoSUfJb9l3csE76VFn7rb8hI7tVUIkM2CfeiUtKAZj6wuH6p7VnskAUAX1quxsn6LGOVcFkVpCL0QPmwF1UFcO2W2uauAEfNjebaPJAJDu2d1bn/GQpp+vNwqaQMNXE61w=
   matrix:
-    - BUILD_TYPE=Debug
-    - BUILD_TYPE=Release
+  - BUILD_TYPE=Debug
+  - BUILD_TYPE=Release
 before_install:
 - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
   fi
@@ -40,9 +40,9 @@ script:
 - bii find
 - bii cpp:configure -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$(which $CXX)
 - bii cpp:build
-- "./bin/manu343726_edalib-tests_test --reporter=info"
-
-after_success:
-- bii user manu343726 -p $BIICODE_PASSWORD
-- bii publish manu343726/edalib --tag STABLE
-- bii publish manu343726/edalib-tests --tag STABLE
+- ./bin/manu343726_edalib-tests_test --reporter=info
+deploy:
+  provider: biicode
+  user: Manu343726
+  password:
+    secure: EA+H9xd2rQnrG6+sbXDpSDtyWeS1zxyCN6Xpl6lAELKD+2IeM3pAhHaE6LUqycKStm1TmptSf76jgeideGJ1OolxC3pgcpL7f2TKbmkkgbYRxXZbkBiQEWPFiE75sQSHxyOR8faFqNU5BukKtRn6/GI5t0MHBpC5JN0pb6z8hKI=
