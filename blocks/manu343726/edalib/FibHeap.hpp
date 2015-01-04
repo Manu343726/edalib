@@ -18,6 +18,7 @@
 #include <list>
 #include <functional>
 #include <memory>
+#include <utility>
 #include <manu343726/timing/timing.hpp>
 
 #include "container_adapters.hpp"
@@ -72,6 +73,15 @@ private:
 			_left{ nullptr },
 			_right{ nullptr }
 		{}
+
+		node(const node&) = default;
+
+		node(node&& other) : node{}
+		{
+			std::swap(_left, other._left);
+			std::swap(_right, other._right);
+			std::swap(elem, other.elem);
+		}
 	};
 
 	using container = SIBLING_CONTAINER<node,std::allocator<node>>;

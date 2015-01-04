@@ -173,7 +173,7 @@ void testFibHeap()
 
 	it("Inserts correctly", [&]()
 	{
-		for (T i = std::numeric_limits<T>::max(); i >= end; --i)
+		for (T i = begin; i >= end; --i)
 		{
 			heap.insert(i);
 
