@@ -70,8 +70,8 @@ private:
 		template<typename... ARGS>
 		node(ARGS&&... args) :
 			elem{ std::forward<ARGS>(args)... },
-			_left{ nullptr },
-			_right{ nullptr }
+			_left( nullptr ),
+			_right( nullptr )
 		{}
 
 		node(const node&) = default;

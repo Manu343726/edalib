@@ -43,6 +43,6 @@ script:
 - ./bin/manu343726_edalib-tests_test --reporter=info
 deploy:
   provider: biicode
-  user: Manu343726
+  user: manu343726
   password:
-    secure: EA+H9xd2rQnrG6+sbXDpSDtyWeS1zxyCN6Xpl6lAELKD+2IeM3pAhHaE6LUqycKStm1TmptSf76jgeideGJ1OolxC3pgcpL7f2TKbmkkgbYRxXZbkBiQEWPFiE75sQSHxyOR8faFqNU5BukKtRn6/GI5t0MHBpC5JN0pb6z8hKI=
+    secure: N2V7/YHCqLXFmDd+1upl0ehiYfIzRymSEcXqaIM3Y2z4UrS0YFOtckR8/fK1XY5NR3DMbRtdmZRf5CEXbDVfzfih2M7Ypsn2xX8SE4A3D9yQlmiJuBxoVXdIjD/GQv1HC7AQKIEAW619lALMaGKuEkxbxCVndEAgtjU6QPao/w4=
