@@ -67,44 +67,9 @@ private:
 
 		std::shared_ptr<node> _left, _right;
 
-		template<typename... ARGS>
-		explicit node(ARGS&&... args) :
-			elem( std::forward<ARGS>(args)... )
-		{
-		}
-
-		node(const node& other) : 
-			elem( other.elem ),
-			_left(other._left),
-			_right(other._right)
+		node( const T& e ) :
+			elem(e)
 		{}
-
-		node(node&& other) : node{}
-		{
-			std::swap(_left, other._left);
-			std::swap(_right, other._right);
-			std::swap(elem, other.elem);
-		}
-
-		node& operator=(const node& other)
-		{
-			_left = other._left;
-			_right = other._right;
-			elem = other.elem;
-
-			return *this;
-		}
-
-		node& operator=(node&& other)
-		{
-			std::swap(_left, other._left);
-			std::swap(_right, other._right);
-			std::swap(elem, other.elem);
-
-			return *this;
-		}
-
-		~node(){}
 	};
 
 	using container = SIBLING_CONTAINER<node,std::allocator<node>>;
