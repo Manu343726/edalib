@@ -1,2 +1,0 @@
-cpp: {generator: Visual Studio 12}
-os: {arch: 32bit, family: Windows, subfamily: '8', version: 6.2.9200}
