@@ -45,5 +45,6 @@ script:
 deploy:
   provider: biicode
   user: manu343726
+  skip_cleanup: true
   password:
     secure: N2V7/YHCqLXFmDd+1upl0ehiYfIzRymSEcXqaIM3Y2z4UrS0YFOtckR8/fK1XY5NR3DMbRtdmZRf5CEXbDVfzfih2M7Ypsn2xX8SE4A3D9yQlmiJuBxoVXdIjD/GQv1HC7AQKIEAW619lALMaGKuEkxbxCVndEAgtjU6QPao/w4=
