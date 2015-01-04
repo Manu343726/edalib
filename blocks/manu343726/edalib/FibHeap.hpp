@@ -73,7 +73,11 @@ private:
 		{
 		}
 
-		node(const node&) = default;
+		node(const node& other) : 
+			elem( other.elem ),
+			_left(other._left),
+			_right(other._right)
+		{}
 
 		node(node&& other) : node{}
 		{
