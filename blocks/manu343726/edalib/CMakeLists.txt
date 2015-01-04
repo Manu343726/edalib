@@ -60,16 +60,16 @@ ADD_BIICODE_TARGETS()
 
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-	target_compile_options(${BII_LIB_TARGET} PUBLIC "/bigobj")
+	target_compile_options(${BII_BLOCK_TARGET} INTERFACE "/bigobj")
 else()
-	target_compile_options(${BII_LIB_TARGET} PUBLIC -std=c++11)
-	target_compile_options(${BII_LIB_TARGET} PUBLIC $<$<CONFIG:Debug>:-O0 -g3 -fno-inline>)
-	target_compile_options(${BII_LIB_TARGET} PUBLIC $<$<CONFIG:Release>:-O3 -g0>)
+	target_compile_options(${BII_BLOCK_TARGET} INTERFACE -std=c++11)
+	target_compile_options(${BII_BLOCK_TARGET} INTERFACE $<$<CONFIG:Debug>:-O0 -g3 -fno-inline>)
+	target_compile_options(${BII_BLOCK_TARGET} INTERFACE $<$<CONFIG:Release>:-O3 -g0>)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "clang")
-	target_compile_options(${BII_LIB_TARGET} PUBLIC -stdlib=libc++ )
-  	set_target_properties(${BII_LIB_TARGET} PROPERTIES LINK_FLAGS -lc++abi)
+	target_compile_options(${BII_BLOCK_TARGET} INTERFACE -stdlib=libc++ )
+  	set_target_properties(${BII_BLOCK_TARGET} PROPERTIES LINK_FLAGS -lc++abi)
 endif()
 
 ##################################################################################################
