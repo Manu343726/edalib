@@ -40,7 +40,7 @@ script:
 - bii find
 - bii cpp:configure -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$(which $CXX)
 - bii cpp:build
-- ./bin/manu343726_edalib-tests_test --reporter=info
+- ./bin/manu343726_edalib_test --reporter=info
 deploy:
   provider: biicode
   user: manu343726

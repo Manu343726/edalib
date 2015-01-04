@@ -19,6 +19,6 @@ build_script:
   - cmd: bii cpp:build
 
 test_script:
-  - cmd: bin\manu343726_edalib-tests_test.exe --reporter=info
+  - cmd: bin\manu343726_edalib_test.exe --reporter=info
 
 
