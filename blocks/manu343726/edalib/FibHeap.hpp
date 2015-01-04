@@ -69,7 +69,7 @@ private:
 
 		template<typename... ARGS>
 		node(ARGS&&... args) :
-			elem{ std::forward<ARGS>(args)... }
+			elem( std::forward<ARGS>(args)... )
 		{
 		}
 
