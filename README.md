@@ -1,4 +1,4 @@
-edalib [![Build Status](https://travis-ci.org/Manu343726/edalib.svg?branch=master)](https://travis-ci.org/Manu343726/edalib) [![biicode block](http://img.shields.io/badge/manu343726%2Fedalib-STABLE%3A%202-yellow.svg)](https://www.biicode.com/manu343726/manu343726/edalib/master)
+edalib [![Build Status](https://travis-ci.org/Manu343726/edalib.svg?branch=master)](https://travis-ci.org/Manu343726/edalib) [![Build status](https://ci.appveyor.com/api/projects/status/v4dbxm56knv6eyr8?svg=true)](https://ci.appveyor.com/project/Manu343726/edalib) [![biicode block](http://img.shields.io/badge/manu343726%2Fedalib-STABLE%3A%202-yellow.svg)](https://www.biicode.com/manu343726/manu343726/edalib/master)
 ======
 
 An Standard-Library-like library for use in teaching EDA (algorithms and data-structures). While the focus is on readability, correctness and compactness (which aids the former two). Aiding debugging by providing inspection into the internal state of containers and efficiency come next. In all cases, ideal asymptotical efficiency is sought (with exception of search trees, which are currently unbalanced).
