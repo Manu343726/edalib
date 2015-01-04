@@ -58,20 +58,34 @@ ADD_BIICODE_TARGETS()
 #     ...
 # endif()
 
+########################################
+##             BUILD SETUP            ## 
+########################################
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-	message(INFO "Using Visual Studio compiler")
-	target_compile_options(${BII_BLOCK_TARGET} INTERFACE "/bigobj")
-else()
-	target_compile_options(${BII_BLOCK_TARGET} INTERFACE -std=c++11)
-	target_compile_options(${BII_BLOCK_TARGET} INTERFACE $<$<CONFIG:Debug>:-O0 -g3 -fno-inline>)
-	target_compile_options(${BII_BLOCK_TARGET} INTERFACE $<$<CONFIG:Release>:-O3 -g0>)
-endif()
+include(manu343726/build_setup/compiler_flags)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "clang")
-	target_compile_options(${BII_BLOCK_TARGET} INTERFACE -stdlib=libc++ )
-  	set_target_properties(${BII_BLOCK_TARGET} PROPERTIES LINK_FLAGS -lc++abi)
-endif()
+##ALL:
+set(MSVC_COMPILER_FLAGS_ALL  /bigobj)
+set(CLANG_COMPILER_FLAGS_ALL -std=c++11)
+set(GCC_COMPILER_FLAGS_ALL   ${CLANG_COMPILER_FLAGS_ALL})
+set(CLANG_LINKER_FLAGS_ALL -lc++abi)
+
+##DEBUG:
+set(MSVC_COMPILER_FLAGS_DEBUG  /Od /Ob0 /DEBUG)
+set(CLANG_COMPILER_FLAGS_DEBUG -O0 -g3 -fno-inline)
+set(GCC_COMPILER_FLAGS_DEBUG   ${CLANG_COMPILER_FLAGS_DEBUG})
+
+##RELEASE:
+set(MSVC_COMPILER_FLAGS_RELEASE /O2 /Ob2)
+set(CLANG_COMPILER_FLAGS_RELEASE -O3 -g0)
+set(GCC_COMPILER_FLAGS_RELEASE ${CLANG_COMPILER_FLAGS_RELEASE})
+
+###############################################################
+
+SET_COMPILER_FLAGS()
+
+set_target_compiler_flags(${BII_BLOCK_TARGET} INTERFACE "${CXX_COMPILER_FLAGS}")
+set_target_linker_flags(${BII_BLOCK_TARGET} INTERFACE "${CXX_LINKER_FLAGS}")
 
 ##################################################################################################
 #
