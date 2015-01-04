@@ -29,7 +29,7 @@
 /test/*!.cpp
 
 # biicode project metadata
-/bii/   
+bii/   
 build/
 cmake/
 bin/
