@@ -39,7 +39,7 @@ install:
 - bii init
 script:
 - bii find
-- bii cpp:configure -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$(which $CXX)
+- bii cpp:configure -G "Unix Makefiles" -DCMAKE_CXX_COMPILER=$(which $CXX) -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 - bii cpp:build
 - ./bin/manu343726_edalib_test --reporter=info
 deploy:
