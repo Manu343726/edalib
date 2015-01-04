@@ -60,6 +60,7 @@ ADD_BIICODE_TARGETS()
 
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+	message(INFO "Using Visual Studio compiler")
 	target_compile_options(${BII_BLOCK_TARGET} INTERFACE "/bigobj")
 else()
 	target_compile_options(${BII_BLOCK_TARGET} INTERFACE -std=c++11)
