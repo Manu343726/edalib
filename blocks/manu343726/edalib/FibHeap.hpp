@@ -68,7 +68,7 @@ private:
 		std::shared_ptr<node> _left, _right;
 
 		template<typename... ARGS>
-		node(ARGS&&... args) :
+		explicit node(ARGS&&... args) :
 			elem( std::forward<ARGS>(args)... )
 		{
 		}
