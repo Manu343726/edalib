@@ -90,20 +90,20 @@ private:
 	 * NOTE: Calling next() on std::end() iterator is invalid and invokes UB
 	 */
 
-	itr_t next(itr_t p) const NOEXCEPT
+	itr_t next(itr_t p) NOEXCEPT
 	{
-		if (p++ == std::end(_roots))
+		if (std::next(p) == std::end(_roots))
 			return std::begin(_roots);
 		else
-			return p++;
+			return std::next(p);
 	}
 
-	itr_t previous(itr_t p) const NOEXCEPT
+	itr_t prev(itr_t p) NOEXCEPT
 	{
 		if (p == std::begin(_roots))
-			return std::end(_roots)--; //Remember that C++ ranges are [begin,end)
+			return std::prev(std::end(_roots)); //Remember that C++ ranges are [begin,end)
 		else
-			return p--;
+			return std::prev(p);
 	}
 
 	template<typename... ARGS>
@@ -113,9 +113,9 @@ private:
 
 		//Read the docs: The element is inserted directly before _min
 		auto it = _roots.emplace(_min, std::forward<ARGS>(args)...);
-		auto new_min = std::next(it); //Be careful with iterator invalidation
+		auto new_min = next(it); //Be careful with iterator invalidation
 
-		//If the new element is lesser than the current min (Or its the first element) swap the iterators
+		//If the new element is lesser than the current min (Or it's the first element) swap the iterators
 		//to make _min point to the new min element.
 		if (heap_empty || _compare(it->elem, new_min->elem))
 			new_min = it;
