@@ -34,3 +34,8 @@ build/
 cmake/
 bin/
 deps/
+/bii/   
+/build/
+/cmake/
+/bin/
+/deps/
