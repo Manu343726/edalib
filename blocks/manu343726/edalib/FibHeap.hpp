@@ -89,6 +89,11 @@ public:
 	{
 		return _min == nullptr;
 	}
+    
+    std::size_t size() const NOEXCEPT
+    {
+        return _size;
+    }
 
 	template<typename... ARGS>
 	void insert(ARGS&&... args)
@@ -183,7 +188,7 @@ private:
             //This step can be optimized moving the chain in one step attaching its ends directly
             //instead of moving each node. But since there are no marks identifying that ends, taking them has
             //O(n) complexity too, so there's no real gain.
-            do_forwards(child, [](const node* sibling)
+            do_forwards(child, [&](const node* sibling)
             {
                _add_to_rootschain(_min, sibling);
             });
@@ -225,7 +230,7 @@ private:
         {
             setup_registry(degree);
             return a[degree];
-        }
+        };
         
         
         do_forwards(_min, [&](node* root)
@@ -306,7 +311,7 @@ private:
         root->left->right = n;
         n->left = root->left;
         n->right = root;
-        n->left = node;
+        root->left = n;
         
         n->parent = root->parent;
     }
