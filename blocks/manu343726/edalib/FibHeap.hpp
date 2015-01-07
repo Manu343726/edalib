@@ -20,8 +20,27 @@
 #include <memory>
 #include <utility>
 #include <manu343726/timing/timing.hpp>
+#include <manu343726/portable_cpp/specifiers.hpp>
+#include <cassert>
 
 #include "container_adapters.hpp"
+
+namespace impl
+{
+	template<typename T>
+	struct node
+	{
+		T key;
+		node* parent, *child, *left, *right;
+		std::size_t degree;
+		bool modified;
+
+		template<typename... ARGS>
+		explicit node(ARGS&&... args) :
+			key{ std::forward<ARGS>(args)... }
+		{}
+	};
+}
 
 /**
  * Fibonacci Heap
@@ -32,103 +51,205 @@
  * ====================
  * 
  *  - T: Element type. Should meet the DefaultConstructible concept?
- *  - C: Comparator type. std::Less<T> by default.
- *  - SIBLING_CONTAINER: Underlying container used to implement sibling between tree roots. std::list (Double linked list) by default.
+ *  - Compare: Comparator type. std::less<T> by default.
+ *  - Allocator: Allocator type. std::allocator<T> by default.
  */
-template<typename T , typename C = std::less<T> , template<typename...> class SIBLING_CONTAINER = std::list>
+template<typename T , typename Compare = std::less<T>, typename Allocator = std::allocator<impl::node<T>>>
 class FibHeap
 {
 public:
     /**
      * Constructs an empty heap. 
      */
-	 FibHeap(C comparer = C{}) :
-	 _compare( comparer ) //I love uniform initialization until I hate uniform initilization... See https://travis-ci.org/Manu343726/edalib/builds/42541893
+	FibHeap(Compare compare = Compare{}, Allocator alloc = Allocator{}) :
+		_compare( compare ), //I love uniform initialization until I hate uniform initilization... See https://travis-ci.org/Manu343726/edalib/builds/42541893
+		_alloc(alloc),
+		_min{ nullptr },
+		_size{0}
 	{
-		_min = std::end(_roots);
+		_check_integrity_all();
 	}
 
-	//Inserts a new element into the heap.
+	bool empty() const NOEXCEPT
+	{
+		_check_integrity_rootschain_ends();
+
+		return _min == nullptr;
+	}
+
 	template<typename... ARGS>
 	void insert(ARGS&&... args)
 	{
-		insert_new(std::forward<ARGS>(args)...);
+		_insert(_make_node(std::forward<ARGS>(args)...));
 	}
 
-	//Gets the minimal element of the heap. O(1) complexity
 	const T& min() const
 	{
-		return _min->elem;
+		return _min->key;
 	}
+
+	template<typename F>
+	void foreach(F f) const
+	{
+		do_foreach(_min, [f](node* node)
+		{
+			f(node->key);
+		});
+	}
+
 private:
-	struct node
-	{
-		T elem;
+	using node = impl::node<T>;
 
-		std::shared_ptr<node> _left, _right;
-
-		node( const T& e ) :
-			elem(e)
-		{}
-	};
-
-	using container = SIBLING_CONTAINER<node,std::allocator<node>>;
-	using itr_t = typename container::iterator;
-
-	container _roots;
-	itr_t _min;
-	C _compare;
-
-	/*
-	 * The two following two member functions help to simulate the circular container 
-	 * The first gives the next iterator from a given one, and the seconds gives the previous.
-	 *
-	 * These functions suppose that itr_t (SIBLING_CONTAINER<node>::iterator) is meet the BidirectionalIterator
-	 * concept, so impose that the containers used for sibling meet this properties (std::vector,std::list, etc)
-	 * discarding some that do not (Like std::forward_list, a single linked list).
-	 *
-	 * NOTE: Calling next() on std::end() iterator is invalid and invokes UB
-	 */
-
-	itr_t next(itr_t p) NOEXCEPT
-	{
-		if (std::next(p) == std::end(_roots))
-			return std::begin(_roots);
-		else
-			return std::next(p);
-	}
-
-	itr_t prev(itr_t p) NOEXCEPT
-	{
-		if (p == std::begin(_roots))
-			return std::prev(std::end(_roots)); //Remember that C++ ranges are [begin,end)
-		else
-			return std::prev(p);
-	}
+	node* _min; //pointer to the node containning the minimum value.
+	std::size_t _size;
+	Compare _compare;
+	Allocator _alloc;
 
 	template<typename... ARGS>
-	void insert_new(ARGS&&... args)
+	node* _make_node(ARGS&&... args)
 	{
-		bool heap_empty = _min == std::end(_roots); //Do the check before insert to prevent iterator invalidation
+		node*  mem = _alloc.allocate(1);
+		_alloc.construct(mem, std::forward<ARGS>(args)...);
+		return mem;
+	}
 
-		//Read the docs: The element is inserted directly before _min
-		auto it = _roots.emplace(_min, std::forward<ARGS>(args)...);
-		auto new_min = next(it); //Be careful with iterator invalidation
+	void _insert(node* node) //Pag 24
+	{
+		assert(node != nullptr);
 
-		//If the new element is lesser than the current min (Or it's the first element) swap the iterators
-		//to make _min point to the new min element.
-		if (heap_empty || _compare(it->elem, new_min->elem))
-			new_min = it;
+		node->degree = 0;
+		node->parent = nullptr;
+		node->child = nullptr;
+		node->modified = false;
 
-		_min = new_min;
+		//Add node to rootschain
+		if (_min == nullptr)
+		{
+			_min = node;
+			_min->right = _min;
+			_min->left = _min;
+		}
+		else
+		{
+			_min->left->right = node;
+			node->left = _min->left;
+			node->right = _min;
+			_min->left = node;
+
+			//Update min
+			if (_compare(node->key, _min->key))
+				_min = node;
+		}	
+
+		_size++;
+
+		_check_integrity_size();
+	}
+
+	/*
+	 * STATE CHECKING UTILITIES
+	 *
+	 * The following functions check for the preconditions and postconditions of the data structure.
+	 * There are different functions representing the different condition categories (The rootschain, the min element, etc),
+	 * which are called in different parts of the implementation to ensure structure integrity.
+	 *
+	 * NOTE: They are for debugging and validation only, this functions have zero runtime overhead.
+	 *       On non-debug compilations all calls to assert() are ellided, the following functions resulting in empty ones.
+	 *       There's no function call overhead, trust the inlining engine on debug mode and the dead code eliminator on release builds.
+	 */
+
+	void _check_integrity_node_degree(node* node) const NOEXCEPT
+	{
+		if (node == nullptr) return;
+
+		std::size_t node_degree = node->degree;
+		std::size_t level = 0;
+
+		while (node != nullptr)
+		{
+			assert(node->degree == node_degree - level);
+			level++;
+		}
+	}
+
+	void _check_integrity_size() const NOEXCEPT
+	{
+		std::size_t total = 0;
+
+		do_foreach(_min, [&](node* node)
+		{
+			total++;
+		});
+
+		assert(total == _size);
+		assert((_size == 0 && _min == nullptr) ||
+			   (_size != 0 && _min != nullptr));
+	}
+
+	void _check_integrity_all() const NOEXCEPT
+	{
+		_check_integrity_node_degree(_min);
+		_check_integrity_size();
+	}
+
+	/*
+	 * UTILITIES
+	 */
+
+	/*
+	* Goes down along a node hierarchy executing a function on each child
+	*/
+	template<typename F>
+	static void do_downwards(node* node, F f)
+	{
+		while (node != nullptr)
+		{
+			f(node);
+			node = node->child;
+		}
+	}
+
+	/* 
+	 * Traverses the rootschain of a node executing a function on each node
+	 */
+	template<typename F>
+	static void do_forwards(node* node, F f)
+	{
+		if (node == nullptr) return;
+
+		node* start = node;
+		
+		do
+		{
+			f(node);
+			node = node->right;
+		} while (node != start);
+	}
+
+	/* 
+	 * Traverses the whole heap doing something on each node
+	 */
+	template<typename F>
+	static void do_foreach(node* start, F f)
+	{
+		if (start == nullptr) return;
+
+		node* node = start;
+
+		do 
+		{
+			f(node);
+			do_foreach(node->child,f);
+			node = node->right;
+		} while (node != start);
 	}
 };
 
 
 //Auxiliar function templates for easy heap instancing: Uses template argument deduction to reduce
 //syntactical noise:
-template<typename T ,template<typename...> class SIBLING_CONTAINER = std::list, typename C >
-FibHeap<T, C, SIBLING_CONTAINER> make_fibheap(C comparer)
+template<typename T, typename C >
+FibHeap<T, C> make_fibheap(C comparer)
 {
 	return{ comparer };
 }

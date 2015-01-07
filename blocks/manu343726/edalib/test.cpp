@@ -158,12 +158,12 @@ void testContainerAdapter() {
     });
 }
 
-template<typename T , template<typename...> class SIBLING_CONTAINER , std::size_t SIZE>
+template<typename T , std::size_t SIZE, typename Allocator = std::allocator<T>>
 void testFibHeap()
 {
 	SCOPED_CLOCK //Do timing
 
-	auto heap = make_fibheap<T, SIBLING_CONTAINER>([](const T& a, const T& b)
+	auto heap = make_fibheap<T>([](const T& a, const T& b)
 	{
 		return a < b;
 	});
@@ -176,6 +176,11 @@ void testFibHeap()
 		for (T i = begin; i >= end; --i)
 		{
 			heap.insert(i);
+			heap.foreach([](const T& e)
+			{
+				std::cout << "(" << e << ") ";
+			});
+			std::cout << std::endl;
 
 			AssertThat(heap.min(), Is().EqualTo(i));
 		}
@@ -279,14 +284,9 @@ go_bandit([]()
 
 	describe("Testing Fibheap", []()
 	{
-		describe("Testing FibHeap<int,std::list>", []()
+		describe("Testing FibHeap<int,std::allocator>", []()
 		{
-			testFibHeap<int, std::list, 1000>();
-		});
-
-		describe("Testing FibHeap<int,std::vector>", []()
-		{
-			testFibHeap<int, std::vector, 1000>();
+			testFibHeap<int, 10>();
 		});
 	});
 });
