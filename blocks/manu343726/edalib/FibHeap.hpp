@@ -72,8 +72,6 @@ public:
 
 	bool empty() const NOEXCEPT
 	{
-		_check_integrity_rootschain_ends();
-
 		return _min == nullptr;
 	}
 
