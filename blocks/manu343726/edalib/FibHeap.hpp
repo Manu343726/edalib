@@ -69,6 +69,20 @@ public:
 	{
 		_check_integrity_all();
 	}
+        
+    ~FibHeap()
+    {
+        do_foreach(_min, [this](node* node)
+        {
+           _alloc.destroy(node);
+           _alloc.deallocate(node, 1); 
+        });
+        
+        _min = nullptr; //Strictly not needed, but it is to pass integrity tests
+        _size = 0; //Same as above
+        
+        _check_integrity_all();
+    }
 
 	bool empty() const NOEXCEPT
 	{
@@ -186,7 +200,11 @@ private:
 
 	void _check_integrity_all() const NOEXCEPT
 	{
-		_check_integrity_node_degree(_min);
+		do_foreach(_min, [this](node* node)
+        {
+            _check_integrity_node_degree(node);
+        });
+        
 		_check_integrity_size();
 	}
 
@@ -232,13 +250,19 @@ private:
 	{
 		if (start == nullptr) return;
 
+        node* right;
+        node* child;
 		node* node = start;
 
 		do 
 		{
+            //Store siblings before acting on the node, just for the case the operation is mutable (Like heap destruction)
+            child = node->child;
+            right = node->right;
+            
 			f(node);
-			do_foreach(node->child,f);
-			node = node->right;
+			do_foreach(child,f);
+			node = right;
 		} while (node != start);
 	}
 };
