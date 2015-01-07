@@ -211,17 +211,17 @@ private:
 	 * Traverses the rootschain of a node executing a function on each node
 	 */
 	template<typename F>
-	static void do_forwards(node* node, F f)
+	static void do_forwards(node* n, F f)
 	{
-		if (node == nullptr) return;
+		if (n == nullptr) return;
 
-		node* start = node;
+		node* start = n;
 		
 		do
 		{
-			f(node);
-			node = node->right;
-		} while (node != start);
+			f(n);
+			n = n->right;
+		} while (n != start);
 	}
 
 	/* 
