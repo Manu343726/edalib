@@ -22,6 +22,7 @@
 #include <manu343726/timing/timing.hpp>
 #include <manu343726/portable_cpp/specifiers.hpp>
 #include <cassert>
+#include <cmath>
 
 #include "container_adapters.hpp"
 
@@ -124,6 +125,20 @@ private:
 		_alloc.construct(mem, std::forward<ARGS>(args)...);
 		return mem;
 	}
+    
+    void _release_node(node* n)
+    {
+        if(n == nullptr) return;
+        
+        _alloc.destruct(n);
+        _alloc.deallocate(n,1);
+    }
+    
+    void _set_min(node* min)
+    {
+        _release_node(_min);
+        _min = min;
+    }
 
 	void _insert(node* node) //Pag 24
 	{
@@ -143,10 +158,8 @@ private:
 		}
 		else
 		{
-			_min->left->right = node;
-			node->left = _min->left;
-			node->right = _min;
-			_min->left = node;
+            //Add node to the rootschain of _min
+			_add_to_rootschain(_min,node);
 
 			//Update min
 			if (_compare(node->key, _min->key))
@@ -157,6 +170,154 @@ private:
 
 		_check_integrity_size();
 	}
+    
+    void _extract_min()//Pag 27
+    {
+        assert(_min != nullptr);
+        
+        node* min = _min;
+        node* child = _min->child;
+        
+        if(child != nullptr)
+        {
+            //This step can be optimized moving the chain in one step attaching its ends directly
+            //instead of moving each node. But since there are no marks identifying that ends, taking them has
+            //O(n) complexity too, so there's no real gain.
+            do_forwards(child, [](const node* sibling)
+            {
+               _add_to_rootschain(_min, sibling);
+            });
+            
+            _remove_from_rootschain(_min);
+            
+            if(_size == 1)
+                _set_min(nullptr);
+            else
+            {
+                _set_min(_min->right);
+                _consolidate();
+            }
+            
+            _size--;
+        }
+        
+        _check_integrity_all();
+    }
+    
+    void _consolidate()
+    {
+        //The "registry", starting with 2 * log_2(n) null pointers
+        std::vector<node*> a{ 2*std::log2(size()), nullptr};
+        
+        //Auxiliary functions:
+        //This functions help to have enough space to operate on the registry while
+        //reading/writting on it still have a clear and simple interface.
+        
+        auto setup_registry = [&](std::size_t degree)
+        {
+            //Just for the case the registry is not big enough, add 
+            //more node references
+            for(std::size_t i = a.size(); i < degree + 1; ++i)
+                a.push_back(nullptr);
+        };
+        
+        auto registry = [&](std::size_t degree) -> node*& //No type inference, return by reference please (To allow assignment calls)
+        {
+            setup_registry(degree);
+            return a[degree];
+        }
+        
+        
+        do_forwards(_min, [&](node* root)
+        {
+           node* x = root;
+           std::size_t degree = x->degree;
+           
+           while(registry(degree) != nullptr)
+           {   
+               node* y = registry(degree);
+               
+               //NOTE: _compare always compares for less. That is, _compare(a,b) returns true if
+               //      a < b given a certain criteria. That said, if(x->key > y->key) is the same
+               //      as if(y->key < y->key).
+               if(_compare(y->key, x->key))
+                   std::swap(x,y);
+               
+               _link(x,y);
+               
+               registry(degree) = nullptr;
+               degree++;
+           }
+           
+           registry(degree) = x; 
+        });
+        
+        _min = nullptr;
+        
+        for(node* n : a)
+        {
+            if(n != nullptr)
+            {
+                //NOTE: This part differs from the implementation guide. The original pseudocode is:
+                //
+                //   _add_to_rootschain(_min, n);
+                // 
+                //   if(_min == nullptr || _compare(n->key, _min->key))
+                //       _min = n;
+                //
+                //This was modified (actually reordered) to take care of null _min. I use
+                //_min to track the main rootschain (The H rootschain in the guide), so adding
+                //n to the _min chain directly is not possible.
+                //Instead, I check for null _min first.
+                
+                if(_min == nullptr)
+                    _min = n;
+                else
+                {
+                    _add_to_rootschain(_min, n);
+                    
+                    if(_compare(n->key, _min->key))
+                        _min = n;
+                }
+            }
+        }
+    }
+    
+    void _link(node* x, node* y)
+    {
+        _remove_from_rootschain(_min, y);
+        _add_child(x,y);
+        y->modified = false;
+    }
+    
+    void _add_child(node* parent, node* child)
+    {
+        if(parent->child == nullptr)
+            parent->child = child;
+        else
+            _add_to_rootschain(parent->child, child);
+        
+        child->parent = parent;
+        parent->degree++;
+    }
+    
+    void _add_to_rootschain(node* root, node* n)
+    {
+        root->left->right = n;
+        n->left = root->left;
+        n->right = root;
+        n->left = node;
+        
+        n->parent = root->parent;
+    }
+    
+    void _remove_from_rootschain(node* root)
+    {
+        assert(root != nullptr);
+        
+        root->left->right = root->right;
+        root->right->left = root->left;
+    }
 
 	/*
 	 * STATE CHECKING UTILITIES
