@@ -64,7 +64,7 @@ public:
      */
 	FibHeap(Compare compare = Compare{}, Allocator alloc = Allocator{}) :
 		_compare( compare ), //I love uniform initialization until I hate uniform initilization... See https://travis-ci.org/Manu343726/edalib/builds/42541893
-		_alloc(alloc),
+		_factory(alloc),
 		_min{ nullptr },
 		_size{0}
 	{
@@ -75,8 +75,7 @@ public:
     {
         do_foreach(_min, [this](node* node)
         {
-           _alloc.destroy(node);
-           _alloc.deallocate(node, 1); 
+           _factory.destroy(node);
         });
         
         _min = nullptr; //Strictly not needed, but it is to pass integrity tests
@@ -98,7 +97,7 @@ public:
 	template<typename... ARGS>
 	void insert(ARGS&&... args)
 	{
-		_insert(_make_node(std::forward<ARGS>(args)...));
+		_insert(_factory.create(std::forward<ARGS>(args)...));
 	}
 
 	const T& min() const
@@ -117,31 +116,67 @@ public:
 
 private:
 	using node = impl::node<T>;
+    
+    class node_factory
+    {
+    public:
+        node_factory(Allocator alloc) : 
+            _alloc{alloc},
+            _allocations{0},
+            _deallocations{0}
+        {}
+        
+        std::size_t allocations() const NOEXCEPT
+        {
+            return  _allocations;
+        }
+        
+        std::size_t deallocations() const NOEXCEPT
+        {
+            return _deallocations;
+        }
+        
+        int alive() const NOEXCEPT
+        {
+            return allocations() - deallocations();
+        }
+        
+        bool good() const NOEXCEPT
+        {
+            return allocations() >= deallocations();
+        }
+        
+        template<typename... ARGS>
+        node* create(ARGS&&... args)
+        {
+            node* node = _alloc.allocate(1);
+            _alloc.construct(node, std::forward<ARGS>(args)...);
+            _allocations++;
+            
+            return node;
+        }
+        
+        void destroy(node* node)
+        {
+            if(node == nullptr) return;
+            
+            _alloc.destroy(node);
+            _alloc.deallocate(node,1);
+            _deallocations++;
+        }
+    private:
+        Allocator _alloc;
+        std::size_t _allocations, _deallocations;
+    };
 
 	node* _min; //pointer to the node containning the minimum value.
 	std::size_t _size;
 	Compare _compare;
-	Allocator _alloc;
-
-	template<typename... ARGS>
-	node* _make_node(ARGS&&... args)
-	{
-		node*  mem = _alloc.allocate(1);
-		_alloc.construct(mem, std::forward<ARGS>(args)...);
-		return mem;
-	}
-    
-    void _release_node(node* n)
-    {
-        if(n == nullptr) return;
-        
-        _alloc.destruct(n);
-        _alloc.deallocate(n,1);
-    }
+	node_factory _factory;
     
     void _set_min(node* min)
     {
-        _release_node(_min);
+        _factory.destroy(_min);
         _min = min;
     }
 
@@ -363,6 +398,13 @@ private:
 		assert((_size == 0 && _min == nullptr) ||
 			   (_size != 0 && _min != nullptr));
 	}
+    
+    void _check_integrity_memory() const NOEXCEPT
+    {
+        _check_integrity_size();
+        assert(_size == _factory.alive());
+        assert(_factory.good());
+    }
 
 	void _check_integrity_all() const NOEXCEPT
 	{
@@ -371,7 +413,7 @@ private:
             _check_integrity_node_degree(node);
         });
         
-		_check_integrity_size();
+		_check_integrity_memory();
 	}
 
 	/*
