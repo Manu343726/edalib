@@ -99,6 +99,17 @@ public:
 	{
 		_insert(_factory.create(std::forward<ARGS>(args)...));
 	}
+    
+    T extract_min()
+    {
+        assert(_min != nullptr);
+        
+        T min = _min->key;
+        
+        _extract_min();
+        
+        return min;
+    }
 
 	const T& min() const
 	{
@@ -117,6 +128,8 @@ public:
 private:
 	using node = impl::node<T>;
     
+    //This class manages node creation and destruction.
+    //Helps debugging traking memory allocations (See _check_integrity_memory() bellow)
     class node_factory
     {
     public:
@@ -178,6 +191,8 @@ private:
     {
         _factory.destroy(_min);
         _min = min;
+        
+        _check_integrity_node_siblings(_min);
     }
 
 	void _insert(node* node) //Pag 24
@@ -187,6 +202,8 @@ private:
 		node->degree = 0;
 		node->parent = nullptr;
 		node->child = nullptr;
+        node->left = nullptr;
+        node->right = nullptr;
 		node->modified = false;
 
 		//Add node to rootschain
@@ -195,6 +212,8 @@ private:
 			_min = node;
 			_min->right = _min;
 			_min->left = _min;
+            
+            _check_integrity_node_siblings(_min);
 		}
 		else
 		{
@@ -208,38 +227,39 @@ private:
 
 		_size++;
 
-		_check_integrity_size();
+		_check_integrity_all();
 	}
     
     void _extract_min()//Pag 27
     {
         assert(_min != nullptr);
         
-        node* min = _min;
+        node* z = _min;
         node* child = _min->child;
         
+        //This step can be optimized moving the chain in one step attaching its ends directly
+        //instead of moving each node. But since there are no marks identifying that ends, taking them has
+        //O(n) complexity too, so there's no real gain.
         if(child != nullptr)
         {
-            //This step can be optimized moving the chain in one step attaching its ends directly
-            //instead of moving each node. But since there are no marks identifying that ends, taking them has
-            //O(n) complexity too, so there's no real gain.
-            do_forwards(child, [&](const node* sibling)
+            do_forwards(child, [&](node* sibling)
             {
-               _add_to_rootschain(_min, sibling);
+                _add_to_rootschain(_min, sibling);
             });
-            
-            _remove_from_rootschain(_min);
-            
-            if(_size == 1)
-                _set_min(nullptr);
-            else
-            {
-                _set_min(_min->right);
-                _consolidate();
-            }
-            
-            _size--;
         }
+
+        node* right = z->right;
+        _remove_from_rootschain(z);
+
+        if(z == right)
+            _set_min(nullptr);
+        else
+        {
+            _set_min(right);
+            _consolidate();
+        }
+
+        _size--;
         
         _check_integrity_all();
     }
@@ -247,7 +267,7 @@ private:
     void _consolidate()
     {
         //The "registry", starting with 2 * log_2(n) null pointers
-        std::vector<node*> a{ 2*std::log2(size()), nullptr};
+        std::vector<node*> a{ (std::size_t)(2*std::log2(size())), nullptr};
         
         //Auxiliary functions:
         //This functions help to have enough space to operate on the registry while
@@ -273,23 +293,24 @@ private:
            node* x = root;
            std::size_t degree = x->degree;
            
-           while(registry(degree) != nullptr)
-           {   
+            while(registry(degree) != nullptr)
+            {   
                node* y = registry(degree);
+
+                    //NOTE: _compare always compares for less. That is, _compare(a,b) returns true if
+                    //      a < b given a certain criteria. That said, if(x->key > y->key) is the same
+                    //      as if(y->key < y->key).
+                    if(_compare(y->key, x->key))
+                        std::swap(x,y);
+
+                    _link(x,y);
+       
+                    registry(degree) = nullptr;
                
-               //NOTE: _compare always compares for less. That is, _compare(a,b) returns true if
-               //      a < b given a certain criteria. That said, if(x->key > y->key) is the same
-               //      as if(y->key < y->key).
-               if(_compare(y->key, x->key))
-                   std::swap(x,y);
-               
-               _link(x,y);
-               
-               registry(degree) = nullptr;
-               degree++;
-           }
+                degree++;
+            }
            
-           registry(degree) = x; 
+           registry(degree) = x;
         });
         
         _min = nullptr;
@@ -311,7 +332,9 @@ private:
                 //Instead, I check for null _min first.
                 
                 if(_min == nullptr)
+                {
                     _min = n;
+                }
                 else
                 {
                     _add_to_rootschain(_min, n);
@@ -325,7 +348,9 @@ private:
     
     void _link(node* x, node* y)
     {
-        _remove_from_rootschain(_min, y);
+        if(x == y) return;
+        
+        _remove_from_rootschain(y);
         _add_child(x,y);
         y->modified = false;
     }
@@ -333,30 +358,78 @@ private:
     void _add_child(node* parent, node* child)
     {
         if(parent->child == nullptr)
+        {
+            assert(parent->degree == 0);
             parent->child = child;
+            child->left = child;
+            child->right = child;
+        }
         else
             _add_to_rootschain(parent->child, child);
         
         child->parent = parent;
         parent->degree++;
+        
+        _check_integrity_reachable(child,child,parent->degree-1);
+        //_check_integrity_node_degree(parent);
     }
     
     void _add_to_rootschain(node* root, node* n)
     {
-        root->left->right = n;
-        n->left = root->left;
-        n->right = root;
-        root->left = n;
+        if(root == n) return;
+        if(root->left == n || root->right == n) return;
+        
+        node* left = root->left;
+        
+        root->left->right = n;//ok
+        n->left = root->left;//ok
+        n->right = root;//ok
+        root->left = n;//ok
         
         n->parent = root->parent;
+        
+        _check_integrity_node_siblings(root);
+        _check_integrity_node_siblings(n);
+        
+        //Can walk from left to root in two steps after insertion?
+        _check_integrity_reachable(left,root,2);
     }
     
     void _remove_from_rootschain(node* root)
     {
         assert(root != nullptr);
         
-        root->left->right = root->right;
-        root->right->left = root->left;
+        node* right = root->right;
+        node* left  = root->left;
+        
+        left->right = right;
+        right->left = left;
+        root->left = root;
+        root->right = root;
+        
+        _check_integrity_node_siblings(left);
+        
+        //Can walk from root->left to root->right in one step after extracting root from the sibling chain?
+        _check_integrity_reachable(left, right, 1);
+    }
+    
+    std::size_t _count_siblings(node* n) const NOEXCEPT
+    {
+        std::size_t count = 0;
+        
+        do_forwards(n, [&](node* sibling)
+        {
+           count++; 
+        });
+        
+        return count;
+    }
+    
+    std::size_t _count_childs(node* node) const NOEXCEPT
+    {
+        assert(node != nullptr);
+        
+        return _count_siblings(node->child);
     }
 
 	/*
@@ -375,15 +448,17 @@ private:
 	{
 		if (node == nullptr) return;
 
-		std::size_t node_degree = node->degree;
-		std::size_t level = 0;
-
-		while (node != nullptr)
-		{
-			assert(node->degree == node_degree - level);
-			level++;
-		}
+		assert(node->degree == _count_childs(node));
 	}
+    
+    void _check_integrity_node_siblings(node* node) const NOEXCEPT
+    {
+        if(node == nullptr) return;
+        
+        assert(node->left != nullptr && node->right != nullptr);
+        assert(node->left->right == node &&
+               node->right->left == node);
+    }
 
 	void _check_integrity_size() const NOEXCEPT
 	{
@@ -405,11 +480,44 @@ private:
         assert(_size == _factory.alive());
         assert(_factory.good());
     }
+    
+    void _check_integrity_reachable(node* begin, node* end, int steps) const NOEXCEPT
+    {
+        std::function<node*(node*)> right = [](node* n)
+        {
+            return n->right;
+        };
+        
+        std::function<node*(node*)> left = [](node* n)
+        {
+            return n->left;
+        };
+        
+        std::function<node*(node*)> identity = [](node* n)
+        {
+            return n;
+        };
+        
+        auto next = (steps >  0) ? right    :
+                    (steps <  0) ? left     :
+                    (steps == 0) ? identity : identity;
+        
+        std::size_t count = 0;
+        
+        while(begin != end)
+        {
+            begin = next(begin);
+            count++;
+        }
+        
+        assert(count <= std::abs(steps));
+    }
 
 	void _check_integrity_all() const NOEXCEPT
 	{
 		do_foreach(_min, [this](node* node)
         {
+            _check_integrity_node_siblings(node);
             _check_integrity_node_degree(node);
         });
         
@@ -424,12 +532,14 @@ private:
 	* Goes down along a node hierarchy executing a function on each child
 	*/
 	template<typename F>
-	static void do_downwards(node* node, F f)
+	static void do_downwards(node* n, F f)
 	{
-		while (node != nullptr)
+		while (n != nullptr)
 		{
-			f(node);
-			node = node->child;
+            //Store next node before executing f just for the case f is mutable on n
+            node* next = n->child;
+			f(n);
+			n = next;
 		}
 	}
 
@@ -442,12 +552,16 @@ private:
 		if (n == nullptr) return;
 
 		node* start = n;
+        node* next = nullptr;
 		
 		do
 		{
+            //Store next node before executing f, just for the case f mutates n
+            next = n->right;
+            
 			f(n);
-			n = n->right;
-		} while (n != start);
+			n = next;
+		} while (n != start && n != next);
 	}
 
 	/* 

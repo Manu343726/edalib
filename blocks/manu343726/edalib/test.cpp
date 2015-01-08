@@ -168,12 +168,12 @@ void testFibHeap()
 		return a < b;
 	});
 
-	T begin = std::numeric_limits<T>::max();
-	T end = begin - (T)(SIZE);
+	T begin = 0;
+	T end = (T)(SIZE);
 
 	it("Inserts correctly", [&]()
 	{
-		for (T i = begin; i >= end; --i)
+		for (T i = end; i >= begin; --i)
 		{
 			heap.insert(i);
 			heap.foreach([](const T& e)
@@ -185,6 +185,23 @@ void testFibHeap()
 			AssertThat(heap.min(), Is().EqualTo(i));
 		}
 	});
+    
+    it("Deletes min correctly", [&]()
+    {
+        for (T i = begin; i <= end; ++i)
+		{
+			auto min = heap.extract_min();
+			std::cout << "Size: " << heap.size() << " ";
+            heap.foreach([](const T& e)
+			{
+				std::cout << "(" << e << ") ";
+			});
+            
+            std::cout << std::endl;
+
+			AssertThat(min, Is().EqualTo(i));
+		}
+    });
 }
 
 go_bandit([]()
