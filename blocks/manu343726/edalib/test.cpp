@@ -15,6 +15,8 @@
 #include <manu343726/edalib/Map.h>
 #include <manu343726/edalib/Set.h>
 #include <manu343726/edalib/BinTree.h>
+#define EDALIB_FIBHEAP_TIMING
+//#define EDALIB_FIBHEAP_CHECKS
 #include <manu343726/edalib/FibHeap.hpp>
 
 #include <manu343726/bandit/bandit.h>
@@ -22,7 +24,6 @@
 #include <manu343726/timing/timing.hpp>
 
 using namespace bandit;
-
 
 /* Utils */
 
@@ -158,11 +159,9 @@ void testContainerAdapter() {
     });
 }
 
-template<typename T , std::size_t SIZE, typename Allocator = std::allocator<T>>
+template<typename T , std::size_t SIZE, bool print_heap = false, typename Allocator = std::allocator<T>>
 void testFibHeap()
 {
-	SCOPED_CLOCK //Do timing
-
 	auto heap = make_fibheap<T>([](const T& a, const T& b)
 	{
 		return a < b;
@@ -176,12 +175,16 @@ void testFibHeap()
 		for (T i = end; i >= begin; --i)
 		{
 			heap.insert(i);
-			heap.foreach([](const T& e)
+            
+            if(print_heap)
 			{
-				std::cout << "(" << e << ") ";
-			});
-			std::cout << std::endl;
-
+                heap.foreach([](const T& e)
+                {
+                    std::cout << "(" << e << ") ";
+                });
+                std::cout << std::endl;
+            }
+                
 			AssertThat(heap.min(), Is().EqualTo(i));
 		}
 	});
@@ -191,13 +194,15 @@ void testFibHeap()
         for (T i = begin; i <= end; ++i)
 		{
 			auto min = heap.extract_min();
-			std::cout << "Size: " << heap.size() << " ";
-            heap.foreach([](const T& e)
-			{
-				std::cout << "(" << e << ") ";
-			});
-            
-            std::cout << std::endl;
+			if(print_heap)
+            {
+                std::cout << "Size: " << heap.size() << " ";
+                heap.foreach([](const T& e)
+                {
+                    std::cout << "(" << e << ") ";
+                });
+                std::cout << std::endl;
+            }
 
 			AssertThat(min, Is().EqualTo(i));
 		}
@@ -303,30 +308,31 @@ go_bandit([]()
 	{
 		describe("Testing FibHeap<int,std::allocator>", []()
 		{
-			testFibHeap<int, 10>();
+			testFibHeap<int, 1000000>();
 		});
 	});
 });
 
 void log_start_timing(const timing_manager::snapshot& snapshot)
 {
-    std::cout << ">>>>>>>>>>> Timing '" << snapshot.frame_function() << "' call. Started." << std::endl;
+    std::cout << ">>>>>>>>>>> Timing '" << snapshot.frame_function() << "' call. Total: ";
 }
 
 void log_finish_timing(const timing_manager::snapshot& snapshot)
 {
-    std::cout << "Finished timing '" << snapshot.frame_function() << "'" << std::endl
-              << "Total time elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(snapshot.elapsed()).count() << " ms" << std::endl
-              << "=============================================" << std::endl;
+    std::cout << std::chrono::duration_cast<std::chrono::microseconds>(snapshot.elapsed()).count() << " microseconds" << std::endl;
+    
 }
 
 int main(int argc , char* argv[]) {
     timing_manager::on_start(log_start_timing);
     timing_manager::on_finish(log_finish_timing);
     
+    std::cout.sync_with_stdio(false); //Disable stdout syncronization to improve performance (Same performance as std::printf() when sync disabled)
+    
 	return [=]()
 	{
-		SCOPED_CLOCK;
+		//SCOPED_CLOCK;
 		return bandit::run(argc, argv);
 	}();
 

@@ -43,6 +43,12 @@ namespace impl
 	};
 }
 
+#if defined(EDALIB_FIBHEAP_TIMING)
+#define EDALIB_FIBHEAP_TIMER SCOPED_CLOCK
+#else
+#define EDALIB_FIBHEAP_TIMER
+#endif
+
 /**
  * Fibonacci Heap
  * 
@@ -97,11 +103,13 @@ public:
 	template<typename... ARGS>
 	void insert(ARGS&&... args)
 	{
+        EDALIB_FIBHEAP_TIMER
 		_insert(_factory.create(std::forward<ARGS>(args)...));
 	}
     
     T extract_min()
     {
+        EDALIB_FIBHEAP_TIMER
         assert(_min != nullptr);
         
         T min = _min->key;
@@ -370,8 +378,10 @@ private:
         child->parent = parent;
         parent->degree++;
         
+        //Can walk from child to child in parent->degree-1 steps? (i.e. Is the sibling chain circular?)
         _check_integrity_reachable(child,child,parent->degree-1);
-        //_check_integrity_node_degree(parent);
+        
+        _check_integrity_node_degree(parent);
     }
     
     void _add_to_rootschain(node* root, node* n)
@@ -443,9 +453,16 @@ private:
 	 *       On non-debug compilations all calls to assert() are ellided, the following functions resulting in empty ones.
 	 *       There's no function call overhead, trust the inlining engine on debug mode and the dead code eliminator on release builds.
 	 */
+    
+#if defined(EDALIB_FIBHEAP_CHECKS) && !defined(NDEBUG) 
+#define EDALIB_INTEGRITY_CHECK
+#else 
+#define EDALIB_INTEGRITY_CHECK return;
+#endif
 
 	void _check_integrity_node_degree(node* node) const NOEXCEPT
 	{
+        EDALIB_INTEGRITY_CHECK
 		if (node == nullptr) return;
 
 		assert(node->degree == _count_childs(node));
@@ -453,6 +470,7 @@ private:
     
     void _check_integrity_node_siblings(node* node) const NOEXCEPT
     {
+        EDALIB_INTEGRITY_CHECK
         if(node == nullptr) return;
         
         assert(node->left != nullptr && node->right != nullptr);
@@ -462,6 +480,7 @@ private:
 
 	void _check_integrity_size() const NOEXCEPT
 	{
+        EDALIB_INTEGRITY_CHECK
 		std::size_t total = 0;
 
 		do_foreach(_min, [&](node* node)
@@ -476,6 +495,7 @@ private:
     
     void _check_integrity_memory() const NOEXCEPT
     {
+        EDALIB_INTEGRITY_CHECK
         _check_integrity_size();
         assert(_size == _factory.alive());
         assert(_factory.good());
@@ -483,6 +503,7 @@ private:
     
     void _check_integrity_reachable(node* begin, node* end, int steps) const NOEXCEPT
     {
+        EDALIB_INTEGRITY_CHECK
         std::function<node*(node*)> right = [](node* n)
         {
             return n->right;
@@ -515,6 +536,7 @@ private:
 
 	void _check_integrity_all() const NOEXCEPT
 	{
+        EDALIB_INTEGRITY_CHECK
 		do_foreach(_min, [this](node* node)
         {
             _check_integrity_node_siblings(node);
