@@ -325,8 +325,8 @@ void log_finish_timing(const timing_manager::snapshot& snapshot)
 }
 
 int main(int argc , char* argv[]) {
-    timing_manager::on_start(log_start_timing);
-    timing_manager::on_finish(log_finish_timing);
+    //timing_manager::on_start(log_start_timing);
+    //timing_manager::on_finish(log_finish_timing);
     
     std::cout.sync_with_stdio(false); //Disable stdout syncronization to improve performance (Same performance as std::printf() when sync disabled)
     
