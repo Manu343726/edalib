@@ -138,6 +138,24 @@ public:
 			f(node->key);
 		});
 	}
+    
+    template<typename... ARGS>
+    bool contains(ARGS&&... args)
+    {
+        T e{std::forward<ARGS>(args)...};
+        bool exists = false;
+        
+        do_foreach_while(_min,[&](node* n)
+        {
+            exists = n->key == e;
+        },
+        [&](node* n)
+        {
+            return !exists;
+        });
+        
+        return exists;
+    }
 
 private:
 	using node = impl::node<T>;
@@ -208,7 +226,6 @@ private:
         _min = min;
         
         _check_integrity_node_siblings(_min);
-        _check_integrity_min();
     }
 
 	void _insert(node* node) //Pag 24
@@ -296,18 +313,21 @@ private:
         {
             //Just for the case the registry is not big enough, add 
             //more node references
-            for(std::size_t i = a.size(); i < degree + 1; ++i)
+            while(a.size() < degree + 1)
                 a.push_back(nullptr);
         };
         
         auto registry = [&](std::size_t degree) -> node*& //No type inference, return by reference please (To allow assignment calls)
         {
             setup_registry(degree);
+            
+            assert(a.size() > degree);
+            
             return a[degree];
         };
         
         
-        do_forwards(_min, [&](node* root)
+        do_foreach(_min, [&](node* root)
         {
            node* x = root;
            std::size_t degree = x->degree;
@@ -378,6 +398,9 @@ private:
     void _add_child(node* parent, node* child)
     {
         EDALIB_FIBHEAP_TIMER_INTERNALS
+        
+        _check_integrity_node_degree(parent);
+                
         if(parent->child == nullptr)
         {
             assert(parent->degree == 0);
@@ -389,7 +412,6 @@ private:
             _add_to_rootschain(parent->child, child);
         
         child->parent = parent;
-        parent->degree++;
         
         //Can walk from child to child in parent->degree-1 steps? (i.e. Is the sibling chain circular?)
         _check_integrity_reachable(child,child,parent->degree-1);
@@ -417,6 +439,12 @@ private:
         
         //Can walk from left to root in two steps after insertion?
         _check_integrity_reachable(left,root,2);
+        
+        if(root->parent != nullptr)
+        {
+            root->parent->degree++;
+            _check_integrity_node_degree(root->parent);
+        }
     }
     
     void _remove_from_rootschain(node* root)
@@ -437,6 +465,12 @@ private:
         
         //Can walk from root->left to root->right in one step after extracting root from the sibling chain?
         _check_integrity_reachable(left, right, 1);
+        
+        if(root->parent != nullptr)
+        {
+            root->parent->degree--;
+            _check_integrity_node_degree(root->parent);
+        }
     }
     
     std::size_t _count_siblings(node* n) const NOEXCEPT
@@ -482,7 +516,14 @@ private:
 	{
         EDALIB_INTEGRITY_CHECK
 		if (node == nullptr) return;
+        
+        std::size_t count = _count_childs(node);
+        
+        if(count != node->degree)
+            std::cout << "Node degree: " << node->degree << ", expected: " << count;
 
+        assert((node->degree == 0 && node->child == nullptr) ||
+               (node->degree != 0 && node->child != nullptr));
 		assert(node->degree == _count_childs(node));
 	}
     
@@ -616,14 +657,14 @@ private:
             
 			f(n);
 			n = next;
-		} while (n != start && n != next);
+		} while (n != start);
 	}
 
 	/* 
-	 * Traverses the whole heap doing something on each node
+	 * Traverses the whole heap doing something on each node while some property is true
 	 */
-	template<typename F>
-	static void do_foreach(node* start, F f)
+	template<typename F, typename Condition>
+	static void do_foreach_while(node* start, F f, Condition condition)
 	{
 		if (start == nullptr) return;
 
@@ -637,11 +678,20 @@ private:
             child = node->child;
             right = node->right;
             
+            if(!condition(node))
+                break;
+            
 			f(node);
-			do_foreach(child,f);
+			do_foreach_while(child,f,condition);
 			node = right;
 		} while (node != start);
 	}
+    
+    template<typename F>
+    static void do_foreach(node* start, F f)
+    {
+        do_foreach_while(start, f, [](node* n){ return true; });
+    }
 };
 
 

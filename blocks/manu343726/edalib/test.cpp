@@ -61,6 +61,30 @@ void log_finish_timing(const timing_manager::snapshot& snapshot)
     
 }
 
+template<typename T, typename Compare, typename Alloc>
+void print_heap(const FibHeap<T,Compare,Alloc>& heap, const std::string& title = "edalib heap", std::ostream& out = std::cout)
+{
+    if(heap.empty()) return;
+    
+    out << std::endl << title << ": [" << heap.min() << "] ";
+    heap.foreach([&](T e)
+    {
+        out << "(" << e << ") ";  
+    });
+}
+
+template<typename T, typename Alloc>
+void print_heap(const std::vector<T,Alloc>& heap, const std::string& title = "   C++ heap", std::ostream& out = std::cout)
+{
+    if(heap.empty()) return;
+    
+    out << std::endl << title << ": [" << heap.front() << "] ";
+    std::for_each(std::begin(heap), std::end(heap), [&](T e)
+    {
+        out << "(" << e << ") ";  
+    });
+}
+
 /* Unit tests */
 
 //Iterator adapters tests:
@@ -173,55 +197,42 @@ void testContainerAdapter() {
     });
 }
 
-template<typename T , std::size_t SIZE, bool print_heap = false, typename Allocator = std::allocator<T>>
+template<typename T , std::size_t SIZE, bool print = false, typename Allocator = std::allocator<T>>
 void testFibHeap()
 {
-	auto heap = make_fibheap<T>([](const T& a, const T& b)
-	{
-		return a < b;
-	});
+    auto heap = make_fibheap<T>([](const T& a, const T& b)
+    {
+            return a < b;
+    });
 
-	T begin = 0;
-	T end = (T)(SIZE);
+    T begin = 0;
+    T end = (T)(SIZE);
 
-	it("Inserts correctly", [&]()
-	{
-		for (T i = end; i >= begin; --i)
-		{
-			heap.insert(i);
-            
-            if(print_heap)
-			{
-                heap.foreach([](const T& e)
-                {
-                    std::cout << "(" << e << ") ";
-                });
-                std::cout << std::endl;
-            }
-                
-			AssertThat(heap.min(), Is().EqualTo(i));
-		}
-	});
+    it("Inserts correctly", [&]()
+    {
+        for (T i = end; i >= begin; --i)
+        {
+            heap.insert(i);
+
+            if(print)
+                print_heap(heap);
+
+            AssertThat(heap.min(), Is().EqualTo(i));
+        }
+    });
     
     timing_manager::on_finish(log_finish_timing);
     
     it("Deletes min correctly", [&]()
     {
-        for (T i = begin; i <= end; ++i)
-		{
-			auto min = heap.extract_min();
-			if(print_heap)
-            {
-                std::cout << "Size: " << heap.size() << " ";
-                heap.foreach([](const T& e)
-                {
-                    std::cout << "(" << e << ") ";
-                });
-                std::cout << std::endl;
-            }
+        for (T i = begin; i < end; ++i)
+        {
+            auto min = heap.extract_min();
+            if(print)
+                print_heap(heap);
 
-			AssertThat(min, Is().EqualTo(i));
-		}
+            AssertThat(min, Is().EqualTo(i));
+        }
     });
     
     std::default_random_engine prng{std::random_device{}()};
@@ -231,17 +242,30 @@ void testFibHeap()
     
     auto print_heaps = [&]()
     {
-        std::cout << std::endl << "C++ heap:    [" << queue.front() << "] ";
-        std::for_each(std::begin(queue), std::end(queue), [](T e)
+        print_heap(queue);
+        print_heap(heap);
+    };
+    
+    auto equal_heaps = [&]()
+    {
+        std::vector<T> a = queue;
+        std::vector<T> b;
+        
+        heap.foreach([&](const T& e)
         {
-           std::cout << "(" << e << ") ";  
+           b.push_back(e); 
         });
-
-        std::cout << std::endl << "edalib heap: [" << heap.min() << "] ";
-        heap.foreach([](T e)
+        
+        std::sort(std::begin(a), std::end(a));
+        std::sort(std::begin(b), std::end(b));
+        
+        if(print)
         {
-           std::cout << "(" << e << ") ";  
-        });
+            print_heap(a, "   C++ heap (sorted)");
+            print_heap(b, "edalib heap (sorted)");
+        }
+        
+        return a == b;
     };
     
     it("Inserts like a heap", [&]()
@@ -254,9 +278,10 @@ void testFibHeap()
            queue.push_back(number);
            std::push_heap(std::begin(queue), std::end(queue), std::greater<T>{});
            
-           if(print_heap)
+           if(print)
                print_heaps();
            
+           AssertThat(equal_heaps(), Is().True());
            AssertThat(heap.min(), Is().EqualTo(queue.front()));
        }
     });
@@ -268,15 +293,14 @@ void testFibHeap()
            T heap_min = heap.min();
            T queue_top = queue.front();
            
-           if(print_heap)
+           if(print)
                print_heaps();
            
            heap.extract_min();
-           queue.pop_back();
            std::pop_heap(std::begin(queue), std::end(queue), std::greater<T>{});
-           
+           queue.pop_back();
 
-           
+           AssertThat(equal_heaps(), Is().True());
            AssertThat(heap_min, Is().EqualTo(queue_top));
        }
     });
@@ -381,7 +405,7 @@ go_bandit([]()
 	{
 		describe("Testing FibHeap<int,std::allocator>", []()
 		{
-            testFibHeap<int, 10, true>();
+                    testFibHeap<int, 50, true>();
 		});
 	});
 });
