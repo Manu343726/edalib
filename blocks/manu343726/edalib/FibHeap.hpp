@@ -49,6 +49,12 @@ namespace impl
 #define EDALIB_FIBHEAP_TIMER
 #endif
 
+#if defined(EDALIB_FIBHEAP_TIMING_INTERNALS)
+#define EDALIB_FIBHEAP_TIMER_INTERNALS SCOPED_CLOCK
+#else
+#define EDALIB_FIBHEAP_TIMER_INTERNALS
+#endif
+
 /**
  * Fibonacci Heap
  * 
@@ -197,14 +203,17 @@ private:
     
     void _set_min(node* min)
     {
+        EDALIB_FIBHEAP_TIMER_INTERNALS
         _factory.destroy(_min);
         _min = min;
         
         _check_integrity_node_siblings(_min);
+        _check_integrity_min();
     }
 
 	void _insert(node* node) //Pag 24
 	{
+        EDALIB_FIBHEAP_TIMER_INTERNALS
 		assert(node != nullptr);
 
 		node->degree = 0;
@@ -240,6 +249,7 @@ private:
     
     void _extract_min()//Pag 27
     {
+        EDALIB_FIBHEAP_TIMER_INTERNALS
         assert(_min != nullptr);
         
         node* z = _min;
@@ -274,6 +284,7 @@ private:
     
     void _consolidate()
     {
+        EDALIB_FIBHEAP_TIMER_INTERNALS
         //The "registry", starting with 2 * log_2(n) null pointers
         std::vector<node*> a{ (std::size_t)(2*std::log2(size())), nullptr};
         
@@ -356,6 +367,7 @@ private:
     
     void _link(node* x, node* y)
     {
+        EDALIB_FIBHEAP_TIMER_INTERNALS
         if(x == y) return;
         
         _remove_from_rootschain(y);
@@ -365,6 +377,7 @@ private:
     
     void _add_child(node* parent, node* child)
     {
+        EDALIB_FIBHEAP_TIMER_INTERNALS
         if(parent->child == nullptr)
         {
             assert(parent->degree == 0);
@@ -386,6 +399,7 @@ private:
     
     void _add_to_rootschain(node* root, node* n)
     {
+        EDALIB_FIBHEAP_TIMER_INTERNALS
         if(root == n) return;
         if(root->left == n || root->right == n) return;
         
@@ -407,6 +421,7 @@ private:
     
     void _remove_from_rootschain(node* root)
     {
+        EDALIB_FIBHEAP_TIMER_INTERNALS
         assert(root != nullptr);
         
         node* right = root->right;
@@ -417,6 +432,7 @@ private:
         root->left = root;
         root->right = root;
         
+        _check_integrity_node_siblings(root);
         _check_integrity_node_siblings(left);
         
         //Can walk from root->left to root->right in one step after extracting root from the sibling chain?
@@ -425,6 +441,7 @@ private:
     
     std::size_t _count_siblings(node* n) const NOEXCEPT
     {
+        EDALIB_FIBHEAP_TIMER_INTERNALS
         std::size_t count = 0;
         
         do_forwards(n, [&](node* sibling)
@@ -437,6 +454,7 @@ private:
     
     std::size_t _count_childs(node* node) const NOEXCEPT
     {
+        EDALIB_FIBHEAP_TIMER_INTERNALS
         assert(node != nullptr);
         
         return _count_siblings(node->child);
@@ -476,6 +494,17 @@ private:
         assert(node->left != nullptr && node->right != nullptr);
         assert(node->left->right == node &&
                node->right->left == node);
+    }
+    
+    void _check_integrity_min() const NOEXCEPT
+    {
+        EDALIB_INTEGRITY_CHECK
+        if(_min == nullptr) return;
+        
+        do_foreach(_min,[this](node* n)
+        {
+            assert(_compare(_min->key, n->key) || _min->key == n->key);
+        });
     }
 
 	void _check_integrity_size() const NOEXCEPT
@@ -541,9 +570,13 @@ private:
         {
             _check_integrity_node_siblings(node);
             _check_integrity_node_degree(node);
+            
+            if(node->parent != nullptr)
+                _check_integrity_reachable(node,node,node->parent->degree-1);
         });
         
 		_check_integrity_memory();
+        _check_integrity_min();
 	}
 
 	/*

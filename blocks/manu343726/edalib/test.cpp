@@ -3,6 +3,8 @@
 #include <ctime>
 #include <cstdlib>
 #include <numeric>
+#include <queue>
+#include <random>
 
 #include <manu343726/edalib/container_adapters.hpp>
 
@@ -15,8 +17,9 @@
 #include <manu343726/edalib/Map.h>
 #include <manu343726/edalib/Set.h>
 #include <manu343726/edalib/BinTree.h>
-#define EDALIB_FIBHEAP_TIMING
-//#define EDALIB_FIBHEAP_CHECKS
+//#define EDALIB_FIBHEAP_TIMING
+//#define EDALIB_FIBHEAP_TIMING_INTERNALS
+#define EDALIB_FIBHEAP_CHECKS
 #include <manu343726/edalib/FibHeap.hpp>
 
 #include <manu343726/bandit/bandit.h>
@@ -45,6 +48,17 @@ template<typename C1 , typename C2 , typename C>
 bool equal( const C1& c1 , const C2& c2 , C comparer = equal_comp{} )
 {
     return std::equal( std::begin(c1) , std::end(c1) , std::begin(c2) , comparer );
+}
+
+void log_start_timing(const timing_manager::snapshot& snapshot)
+{
+    std::cout << ">>>>>>>>>>> Timing '" << snapshot.frame_function() << "' call. Total: ";
+}
+
+void log_finish_timing(const timing_manager::snapshot& snapshot)
+{
+    std::cout << snapshot.frame_function() << ": " << std::chrono::duration_cast<std::chrono::nanoseconds>(snapshot.elapsed()).count() << " nanoseconds" << std::endl;
+    
 }
 
 /* Unit tests */
@@ -189,6 +203,8 @@ void testFibHeap()
 		}
 	});
     
+    timing_manager::on_finish(log_finish_timing);
+    
     it("Deletes min correctly", [&]()
     {
         for (T i = begin; i <= end; ++i)
@@ -206,6 +222,63 @@ void testFibHeap()
 
 			AssertThat(min, Is().EqualTo(i));
 		}
+    });
+    
+    std::default_random_engine prng{std::random_device{}()};
+    std::uniform_int_distribution<T> dist{0,(T)SIZE};
+       
+    std::vector<T> queue;
+    
+    auto print_heaps = [&]()
+    {
+        std::cout << std::endl << "C++ heap:    [" << queue.front() << "] ";
+        std::for_each(std::begin(queue), std::end(queue), [](T e)
+        {
+           std::cout << "(" << e << ") ";  
+        });
+
+        std::cout << std::endl << "edalib heap: [" << heap.min() << "] ";
+        heap.foreach([](T e)
+        {
+           std::cout << "(" << e << ") ";  
+        });
+    };
+    
+    it("Inserts like a heap", [&]()
+    {
+       for(std::size_t i = 0; i < SIZE; ++i)
+       {
+           T number = dist(prng);
+           
+           heap.insert(number);
+           queue.push_back(number);
+           std::push_heap(std::begin(queue), std::end(queue), std::greater<T>{});
+           
+           if(print_heap)
+               print_heaps();
+           
+           AssertThat(heap.min(), Is().EqualTo(queue.front()));
+       }
+    });
+    
+    it("Removes like a heap", [&]()
+    {
+       for(std::size_t i = 0; i < SIZE; ++i)
+       {
+           T heap_min = heap.min();
+           T queue_top = queue.front();
+           
+           if(print_heap)
+               print_heaps();
+           
+           heap.extract_min();
+           queue.pop_back();
+           std::pop_heap(std::begin(queue), std::end(queue), std::greater<T>{});
+           
+
+           
+           AssertThat(heap_min, Is().EqualTo(queue_top));
+       }
     });
 }
 
@@ -308,21 +381,10 @@ go_bandit([]()
 	{
 		describe("Testing FibHeap<int,std::allocator>", []()
 		{
-			testFibHeap<int, 1000000>();
+            testFibHeap<int, 10, true>();
 		});
 	});
 });
-
-void log_start_timing(const timing_manager::snapshot& snapshot)
-{
-    std::cout << ">>>>>>>>>>> Timing '" << snapshot.frame_function() << "' call. Total: ";
-}
-
-void log_finish_timing(const timing_manager::snapshot& snapshot)
-{
-    std::cout << std::chrono::duration_cast<std::chrono::microseconds>(snapshot.elapsed()).count() << " microseconds" << std::endl;
-    
-}
 
 int main(int argc , char* argv[]) {
     //timing_manager::on_start(log_start_timing);
