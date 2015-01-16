@@ -19,7 +19,7 @@
 #include <manu343726/edalib/BinTree.h>
 //#define EDALIB_FIBHEAP_TIMING
 //#define EDALIB_FIBHEAP_TIMING_INTERNALS
-#define EDALIB_FIBHEAP_CHECKS
+//#define EDALIB_FIBHEAP_CHECKS
 #include <manu343726/edalib/FibHeap.hpp>
 
 #include <manu343726/bandit/bandit.h>
@@ -225,7 +225,7 @@ void testFibHeap()
     
     it("Deletes min correctly", [&]()
     {
-        for (T i = begin; i < end; ++i)
+        for (T i = begin; i <= end; ++i)
         {
             auto min = heap.extract_min();
             if(print)
@@ -405,7 +405,7 @@ go_bandit([]()
 	{
 		describe("Testing FibHeap<int,std::allocator>", []()
 		{
-                    testFibHeap<int, 50, true>();
+                    testFibHeap<int, 10, false>();
 		});
 	});
 });

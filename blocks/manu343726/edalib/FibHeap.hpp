@@ -35,6 +35,7 @@ namespace impl
 		node* parent, *child, *left, *right;
 		std::size_t degree;
 		bool modified;
+        bool detached;
 
 		template<typename... ARGS>
 		explicit node(ARGS&&... args) :
@@ -239,6 +240,7 @@ private:
         node->left = nullptr;
         node->right = nullptr;
 		node->modified = false;
+        node->detached = true;
 
 		//Add node to rootschain
 		if (_min == nullptr)
@@ -246,6 +248,7 @@ private:
 			_min = node;
 			_min->right = _min;
 			_min->left = _min;
+            _min->detached = false;
             
             _check_integrity_node_siblings(_min);
 		}
@@ -269,6 +272,8 @@ private:
         EDALIB_FIBHEAP_TIMER_INTERNALS
         assert(_min != nullptr);
         
+        _check_integrity_all();
+        
         node* z = _min;
         node* child = _min->child;
         
@@ -277,21 +282,32 @@ private:
         //O(n) complexity too, so there's no real gain.
         if(child != nullptr)
         {
+            std::vector<node*> childs;
             do_forwards(child, [&](node* sibling)
             {
-                _add_to_rootschain(_min, sibling);
+                _remove_from_rootschain(sibling);
+                childs.push_back(sibling);
             });
+            
+            for(node* n : childs)
+                _add_to_rootschain(_min, n);
         }
 
         node* right = z->right;
         _remove_from_rootschain(z);
+        
+        std::vector<node*> H; 
+        do_forwards(right, [&](node* n)
+        {
+            H.push_back(n);
+        });
 
-        if(z == right)
+        if(_size == 1)
             _set_min(nullptr);
         else
         {
             _set_min(right);
-            _consolidate();
+            _consolidate(H);
         }
 
         _size--;
@@ -299,7 +315,7 @@ private:
         _check_integrity_all();
     }
     
-    void _consolidate()
+    void _consolidate(const std::vector<node*>& H)
     {
         EDALIB_FIBHEAP_TIMER_INTERNALS
         //The "registry", starting with 2 * log_2(n) null pointers
@@ -327,7 +343,7 @@ private:
         };
         
         
-        do_foreach(_min, [&](node* root)
+        for(node* root : H)
         {
            node* x = root;
            std::size_t degree = x->degree;
@@ -342,7 +358,9 @@ private:
                     if(_compare(y->key, x->key))
                         std::swap(x,y);
 
+                    _check_integrity_all(false,false);
                     _link(x,y);
+                    _check_integrity_all(false,false);
        
                     registry(degree) = nullptr;
                
@@ -350,12 +368,14 @@ private:
             }
            
            registry(degree) = x;
-        });
+        }
         
         _min = nullptr;
         
         for(node* n : a)
         {
+            _check_integrity_node_siblings(n);
+            
             if(n != nullptr)
             {
                 //NOTE: This part differs from the implementation guide. The original pseudocode is:
@@ -372,17 +392,29 @@ private:
                 
                 if(_min == nullptr)
                 {
+                    _check_integrity_all(false,false);
                     _min = n;
+                    _check_integrity_all(false,false);
                 }
                 else
                 {
+                    _check_integrity_all(false,false);
+                    
+                    node m = *n;
+                    
                     _add_to_rootschain(_min, n);
+                    
+                    _check_integrity_all(false,false);
                     
                     if(_compare(n->key, _min->key))
                         _min = n;
+                    
+                    _check_integrity_all(false,false);
                 }
             }
         }
+        
+        _check_integrity_all(true,false);
     }
     
     void _link(node* x, node* y)
@@ -399,19 +431,23 @@ private:
     {
         EDALIB_FIBHEAP_TIMER_INTERNALS
         
+        assert(child->detached);
+        
         _check_integrity_node_degree(parent);
                 
         if(parent->child == nullptr)
         {
             assert(parent->degree == 0);
             parent->child = child;
+            child->parent = parent;
             child->left = child;
             child->right = child;
+            child->detached = false;
+            parent->degree = 1;
+            _check_integrity_node_siblings(child);
         }
         else
             _add_to_rootschain(parent->child, child);
-        
-        child->parent = parent;
         
         //Can walk from child to child in parent->degree-1 steps? (i.e. Is the sibling chain circular?)
         _check_integrity_reachable(child,child,parent->degree-1);
@@ -425,24 +461,33 @@ private:
         if(root == n) return;
         if(root->left == n || root->right == n) return;
         
+        assert(n->detached);
+        assert(!root->detached);
+        assert(!root->left->detached);
+        assert(!root->right->detached);
+        
+        
         node* left = root->left;
         
-        root->left->right = n;//ok
-        n->left = root->left;//ok
+        left->right = n;//ok
+        n->left = left;//ok
         n->right = root;//ok
         root->left = n;//ok
         
         n->parent = root->parent;
+        n->detached = false;
         
         _check_integrity_node_siblings(root);
         _check_integrity_node_siblings(n);
         
         //Can walk from left to root in two steps after insertion?
         _check_integrity_reachable(left,root,2);
+        _check_integrity_reachable(root,left,-2);
         
         if(root->parent != nullptr)
         {
             root->parent->degree++;
+            assert(_is_child(root->parent, n));
             _check_integrity_node_degree(root->parent);
         }
     }
@@ -452,23 +497,34 @@ private:
         EDALIB_FIBHEAP_TIMER_INTERNALS
         assert(root != nullptr);
         
+        //assert(!root->detached);
+        
         node* right = root->right;
         node* left  = root->left;
         
         left->right = right;
         right->left = left;
-        root->left = root;
-        root->right = root;
+        root->detached = true;
         
         _check_integrity_node_siblings(root);
         _check_integrity_node_siblings(left);
+        _check_integrity_node_siblings(right);
         
         //Can walk from root->left to root->right in one step after extracting root from the sibling chain?
         _check_integrity_reachable(left, right, 1);
+        _check_integrity_reachable(right, left, -1);
         
         if(root->parent != nullptr)
         {
+            if(root->parent->child == root)
+                root->parent->child = right;
+            
             root->parent->degree--;
+            if(root->parent->degree == 0)
+            {
+                assert(root->parent->child == root);
+                root->parent->child = nullptr;
+            }
             _check_integrity_node_degree(root->parent);
         }
     }
@@ -492,6 +548,25 @@ private:
         assert(node != nullptr);
         
         return _count_siblings(node->child);
+    }
+    
+    bool _is_sibling(node* start, node* sibling)
+    {
+        bool exists = false;
+        
+        if(start == nullptr || sibling == nullptr) return false;
+        
+        do_forwards(start,[&](node* n)
+        {
+            exists = n == sibling;
+        });
+        
+        return exists;
+    }
+    
+    bool _is_child(node* parent, node* child)
+    {
+        return _is_sibling(parent->child, child);
     }
 
 	/*
@@ -533,8 +608,19 @@ private:
         if(node == nullptr) return;
         
         assert(node->left != nullptr && node->right != nullptr);
-        assert(node->left->right == node &&
-               node->right->left == node);
+        
+        if(!node->detached)
+        {
+            if(!(node->left->right == node &&
+                   node->right->left == node))
+            {
+                node = node;
+                std::cout << node;
+            }
+
+            assert(node->left->right == node &&
+                   node->right->left == node);
+        }
     }
     
     void _check_integrity_min() const NOEXCEPT
@@ -563,11 +649,15 @@ private:
 			   (_size != 0 && _min != nullptr));
 	}
     
-    void _check_integrity_memory() const NOEXCEPT
+    void _check_integrity_memory(bool check_size = true) const NOEXCEPT
     {
         EDALIB_INTEGRITY_CHECK
-        _check_integrity_size();
-        assert(_size == _factory.alive());
+        
+        if(check_size)
+        {
+            _check_integrity_size();
+            assert(_size == _factory.alive());
+        }
         assert(_factory.good());
     }
     
@@ -604,20 +694,29 @@ private:
         assert(count <= std::abs(steps));
     }
 
-	void _check_integrity_all() const NOEXCEPT
+	void _check_integrity_all(bool check_min = true, bool check_size = true) const NOEXCEPT
 	{
         EDALIB_INTEGRITY_CHECK
+                
+        do_forwards(_min, [](node* node)
+        {
+            assert(node->parent == nullptr);
+        });
 		do_foreach(_min, [this](node* node)
         {
             _check_integrity_node_siblings(node);
             _check_integrity_node_degree(node);
             
+            assert(!node->detached);
+            
             if(node->parent != nullptr)
                 _check_integrity_reachable(node,node,node->parent->degree-1);
         });
         
-		_check_integrity_memory();
-        _check_integrity_min();
+		_check_integrity_memory(check_size);
+        
+        if(check_min)
+            _check_integrity_min();
 	}
 
 	/*
