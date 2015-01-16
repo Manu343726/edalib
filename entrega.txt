@@ -1,0 +1,4 @@
+El proyecto comprimido ocupaba 1.3MB, el máximo de la entrega es 1MB.
+Aquí tiene un enlace de descarga: https://www.dropbox.com/s/ik8mdzwhyd5twf6/manuel_sanchez_mar_fibheap.tar.gz?dl=0
+
+Disculpe las molestias

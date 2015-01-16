@@ -271,6 +271,48 @@ private:
         
         _check_integrity_all();
     }
+
+    void _fib_heap_decrease(node* x, const T& k)
+    {
+        assert(x != nullptr);
+        assert(x->key > k);
+
+        x->key = k;
+        node* y = x->parent;
+
+        if(y != nullptr && _compare(x->key, y->key))
+        {
+            _cut(x,y);
+            _cascading_cut(y);
+        }
+
+        if(_compare(x->key, _min->key))
+            _min = x;
+    }
+
+    void _cut(node* x, node* y)
+    {
+        _remove_from_rootschain(x);
+        y->degree--;
+        _add_to_rootschain(_min,x);
+        x->modified = false;
+    }
+
+    void _cascading_cut(node* y)
+    {
+        node* z = y->parent;
+        
+        if(z != nullptr)
+        {
+            if(!y->modified)
+                y->modified = true;
+            else
+            {
+                _cut(y,z);
+                _cascading_cut(z);
+            }
+        }
+    }
     
     void _consolidate()
     {

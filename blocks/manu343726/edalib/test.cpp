@@ -308,7 +308,7 @@ go_bandit([]()
 	{
 		describe("Testing FibHeap<int,std::allocator>", []()
 		{
-			testFibHeap<int, 1000000>();
+			testFibHeap<int, 1000>();
 		});
 	});
 });
